@@ -33,4 +33,10 @@ describe('app routes', () => {
 
     expect(screen.getByRole('heading', { name: /internal calibration/i })).toBeInTheDocument();
   });
+
+  it('renders the recalibration route', () => {
+    renderRoute('/internal/recalibration');
+
+    expect(screen.getByRole('heading', { name: /internal recalibration/i })).toBeInTheDocument();
+  });
 });

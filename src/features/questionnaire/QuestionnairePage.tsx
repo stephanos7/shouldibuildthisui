@@ -7,7 +7,7 @@ import { decide } from '../../decision/engine/decide';
 import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
 import { clearRecommendationSession, loadQuestionnaireDraft, saveDecisionResult, saveQuestionnaireDraft } from '../../shared/storage/recommendationStorage';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
-import { questionnaireSections, questions } from './questions';
+import { questionIds, questionnaireSections, questions } from './questions';
 import QuestionSection from './QuestionSection';
 import type { QuestionnaireResultState } from './questionnaireResultState';
 
@@ -29,6 +29,7 @@ export default function QuestionnairePage() {
   const {
     handleSubmit,
     reset,
+    resetField,
     control,
     formState: { errors, isSubmitting }
   } = methods;
@@ -62,6 +63,12 @@ export default function QuestionnairePage() {
     clearRecommendationSession();
     persistenceReadyRef.current = false;
     reset({});
+
+    for (const questionId of questionIds) {
+      resetField(questionId, {
+        defaultValue: undefined
+      });
+    }
   };
 
   return (
@@ -75,15 +82,27 @@ export default function QuestionnairePage() {
           aria-label="Recommendation questionnaire"
         >
           <Stack spacing={1.5}>
-            <Typography variant="overline" color="text.secondary">
-              Questionnaire
-            </Typography>
-            <Typography variant="h2" component="h1">
-              Assess your React UI delivery needs
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Answer all 16 questions to generate a recommendation from the decision engine.
-            </Typography>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1.5}
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              justifyContent="space-between"
+            >
+              <Stack spacing={1.5}>
+                <Typography variant="overline" color="text.secondary">
+                  Questionnaire
+                </Typography>
+                <Typography variant="h2" component="h1">
+                  Assess your React UI delivery needs
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Answer all 16 questions to generate a recommendation from the decision engine.
+                </Typography>
+              </Stack>
+              <Button type="button" variant="text" onClick={handleStartOver}>
+                Clear saved answers
+              </Button>
+            </Stack>
           </Stack>
 
           {Object.keys(errors).length > 0 ? (

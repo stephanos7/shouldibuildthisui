@@ -19,6 +19,9 @@ export default function AppLayout() {
             <Button component={RouterLink} to="/internal/calibration" color="inherit">
               Calibration
             </Button>
+            <Button component={RouterLink} to="/internal/recalibration" color="inherit">
+              Recalibration
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>

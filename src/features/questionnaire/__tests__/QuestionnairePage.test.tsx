@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { routes } from '../../../app/routes';
@@ -117,5 +117,40 @@ describe('QuestionnairePage', () => {
     expect(storedResult?.result.policyVersion).toBe(recommendationPolicy.version);
     expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
     expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).not.toBeNull();
+  });
+
+  it('clears saved answers from storage and the current form, with actions at the top and bottom', async () => {
+    window.localStorage.setItem(
+      STORAGE_KEYS.questionnaireDraft,
+      JSON.stringify({
+        version: 1,
+        savedAt: '2026-01-01T00:00:00.000Z',
+        values: questionnaireFixture
+      })
+    );
+
+    renderQuestionnaire();
+
+    const clearButtons = screen.getAllByRole('button', { name: /clear saved answers/i });
+    const form = clearButtons[0].closest('form');
+
+    expect(clearButtons.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole('radio', { name: /1-9 developers/i, checked: true })).toBeInTheDocument();
+    expect(form).not.toBeNull();
+
+    fireEvent.click(clearButtons[0]);
+
+    await waitFor(() => {
+      expect(loadQuestionnaireDraft()).toBeNull();
+    });
+
+    expect(
+      within(form as HTMLFormElement).queryByRole('radio', { name: /1-9 developers/i, checked: true })
+    ).not.toBeInTheDocument();
+    expect(
+      within(form as HTMLFormElement).queryByRole('radio', { name: /1 team/i, checked: true })
+    ).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(STORAGE_KEYS.questionnaireDraft)).toBeNull();
+    expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).toBeNull();
   });
 });
