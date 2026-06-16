@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { routes } from '../../../app/routes';
 import { theme } from '../../../app/theme';
 import { STORAGE_KEYS } from '../../../shared/storage/localStorageKeys';
-import { validateDraft } from '../RecalibrationPage';
+import { validateDraft } from '../validateDraft';
 
 function renderRecalibrationRoute() {
   const router = createMemoryRouter(routes, {

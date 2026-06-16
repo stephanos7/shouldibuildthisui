@@ -13,7 +13,7 @@ import { pathDefinitions } from '../../decision/policy/pathDefinitions';
 import type { Path } from '../../decision/types/Path';
 import RuleConditionSummary from './RuleConditionSummary';
 import RuleScoreEditor from './RuleScoreEditor';
-import type { EditableRuleView, RuleDraft, RuleView } from './recalibrationTypes';
+import type { RuleDraft, RuleView } from './recalibrationTypes';
 
 type RuleEditPanelProps = {
   draft: RuleDraft | null;

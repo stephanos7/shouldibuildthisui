@@ -5,7 +5,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { routes } from '../../../app/routes';
 import { theme } from '../../../app/theme';
 import { recommendationPolicy } from '../../../decision/policy/recommendationPolicy';
+import { getActivePolicyMetadata } from '../../../decision/recalibration/getActivePolicyMetadata';
 import { STORAGE_KEYS } from '../../../shared/storage/localStorageKeys';
+import { saveRecalibrationOverrides } from '../../../shared/storage/recalibrationStorage';
 import { loadDecisionResult, loadQuestionnaireDraft } from '../../../shared/storage/recommendationStorage';
 import type { QuestionnaireValues } from '../questionnaireSchema';
 
@@ -47,6 +49,44 @@ const answerLabels = [
   /low urgency/i
 ];
 
+const nonGateQuestionnaireFixture: QuestionnaireValues = {
+  frontendDeveloperCount: '1_9',
+  teamCount: '1',
+  reactAppCount: '1',
+  designSystemMaturity: 'none',
+  uiKnowledgeDistribution: 'distributed',
+  designEngineeringFriction: 'low',
+  standardizationIntent: 'none',
+  dataGridComplexity: 'none',
+  performanceCriticality: 'low',
+  accessibilityCriticality: 'low',
+  changeLeadTime: 'same_day',
+  uiRegressionFrequency: 'rare',
+  deliveryUrgency: 'low',
+  applicationCriticality: 'customer_facing',
+  supportExpectation: 'standard_support',
+  ownershipHorizon: 'long_term'
+};
+
+const nonGateAnswerLabels = [
+  /1-9 developers/i,
+  /1 team/i,
+  /1 application/i,
+  /no real design system/i,
+  /low friction/i,
+  /no explicit standardization goal/i,
+  /well distributed across contributors/i,
+  /usually the same day/i,
+  /rarely/i,
+  /long-term product/i,
+  /no meaningful grid requirements/i,
+  /low criticality/i,
+  /low priority/i,
+  /customer-facing product/i,
+  /standard support/i,
+  /low urgency/i
+];
+
 function renderQuestionnaire(initialPath = '/') {
   const router = createMemoryRouter(routes, {
     initialEntries: [initialPath]
@@ -64,6 +104,12 @@ function renderQuestionnaire(initialPath = '/') {
 
 function fillQuestionnaire() {
   for (const label of answerLabels) {
+    fireEvent.click(screen.getAllByRole('radio', { name: label })[0]);
+  }
+}
+
+function fillNonGateQuestionnaire() {
+  for (const label of nonGateAnswerLabels) {
     fireEvent.click(screen.getAllByRole('radio', { name: label })[0]);
   }
 }
@@ -115,6 +161,7 @@ describe('QuestionnairePage', () => {
     expect(storedDraft).toEqual(questionnaireFixture);
     expect(storedResult?.input).toEqual(questionnaireFixture);
     expect(storedResult?.result.policyVersion).toBe(recommendationPolicy.version);
+    expect(storedResult?.metadata).toEqual(getActivePolicyMetadata(null));
     expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
     expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).not.toBeNull();
   });
@@ -152,5 +199,44 @@ describe('QuestionnairePage', () => {
     ).not.toBeInTheDocument();
     expect(window.localStorage.getItem(STORAGE_KEYS.questionnaireDraft)).toBeNull();
     expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).toBeNull();
+  });
+
+  it('uses the active recalibrated policy on submit', async () => {
+    saveRecalibrationOverrides({
+      version: 1,
+      policyVersion: recommendationPolicy.version,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      overrides: {
+        'scope-single-team-local-choice': {
+          ruleId: 'scope-single-team-local-choice',
+          scores: {
+            build_it_yourself: 0,
+            mui_core: 4
+          },
+          reason: 'Single-team scope now prefers a reusable shared foundation.',
+          updatedAt: '2026-01-01T00:00:00.000Z'
+        }
+      }
+    });
+
+    renderQuestionnaire();
+    fillNonGateQuestionnaire();
+
+    fireEvent.click(screen.getAllByRole('button', { name: /get recommendation/i })[0]);
+
+    expect(await screen.findByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+
+    const storedResult = loadDecisionResult();
+
+    expect(storedResult?.input).toEqual(nonGateQuestionnaireFixture);
+    expect(storedResult?.result.recommendation).toBe('mui_core');
+    expect(storedResult?.metadata).toEqual({
+      policyVersion: recommendationPolicy.version,
+      recalibrationUpdatedAt: '2026-01-01T00:00:00.000Z',
+      hasLocalOverrides: true
+    });
+    expect(storedResult?.result.explanation.recommendationReasons).toContain(
+      'Single-team scope now prefers a reusable shared foundation.'
+    );
   });
 });

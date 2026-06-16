@@ -1,15 +1,17 @@
 import { Alert, Paper, Stack, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { decide } from '../../decision/engine/decide';
-import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { getActiveRecommendationPolicy } from '../../decision/policy/recommendationPolicy';
 import { calibrationScenarios } from '../../decision/tests/calibrationScenarios';
 import ScenarioDetailsDrawer from './ScenarioDetailsDrawer';
 import ScenarioTable from './ScenarioTable';
 import type { EvaluatedScenario } from './calibrationTypes';
 
 function evaluateScenarios(): EvaluatedScenario[] {
+  const activePolicy = getActiveRecommendationPolicy();
+
   return calibrationScenarios.map((scenario) => {
-    const result = decide(scenario.input, recommendationPolicy);
+    const result = decide(scenario.input, activePolicy);
 
     return {
       scenario,

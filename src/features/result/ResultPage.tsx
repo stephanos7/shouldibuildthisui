@@ -2,7 +2,11 @@ import { Button, Grid, Paper, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { decide } from '../../decision/engine/decide';
-import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { getActiveRecommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import {
+  activePolicyMetadataMatches,
+  getActivePolicyMetadata
+} from '../../decision/recalibration/getActivePolicyMetadata';
 import { clearRecommendationSession, loadDecisionResult, saveDecisionResult } from '../../shared/storage/recommendationStorage';
 import type { QuestionnaireResultState } from '../questionnaire/questionnaireResultState';
 import ExplanationList from './ExplanationList';
@@ -16,11 +20,14 @@ type ResultPageProps = {
 
 export default function ResultPage({ state }: ResultPageProps) {
   const navigate = useNavigate();
+  const activePolicy = useMemo(() => getActiveRecommendationPolicy(), []);
+  const activePolicyMetadata = useMemo(() => getActivePolicyMetadata(), []);
   const resolvedResult = useMemo(() => {
     if (state) {
       return {
         input: state.input,
         result: state.result,
+        metadata: activePolicyMetadata,
         shouldPersist: true
       };
     }
@@ -31,27 +38,31 @@ export default function ResultPage({ state }: ResultPageProps) {
       return null;
     }
 
-    if (storedResult.result.policyVersion === recommendationPolicy.version) {
+    if (activePolicyMetadataMatches(storedResult.metadata, activePolicyMetadata)) {
       return {
         input: storedResult.input,
         result: storedResult.result,
+        metadata: storedResult.metadata,
         shouldPersist: false
       };
     }
 
+    const recomputedResult = decide(storedResult.input, activePolicy);
+
     return {
       input: storedResult.input,
-      result: decide(storedResult.input, recommendationPolicy),
+      result: recomputedResult,
+      metadata: activePolicyMetadata,
       shouldPersist: true
     };
-  }, [state]);
+  }, [activePolicy, activePolicyMetadata, state]);
 
   useEffect(() => {
     if (!resolvedResult?.shouldPersist) {
       return;
     }
 
-    saveDecisionResult(resolvedResult.input, resolvedResult.result);
+    saveDecisionResult(resolvedResult.input, resolvedResult.result, resolvedResult.metadata);
   }, [resolvedResult]);
 
   const handleStartOver = () => {
@@ -80,15 +91,20 @@ export default function ResultPage({ state }: ResultPageProps) {
   return (
     <Stack spacing={3.5}>
       <Stack spacing={1}>
+        <Typography variant="body2" color="text.secondary">
+          Current policy version: {activePolicy.version}
+        </Typography>
         <Typography variant="h4" component="h1">
           Recommendation result
         </Typography>
         <Typography color="text.secondary">
           Review the recommendation, confidence, applied rules, and full score breakdown.
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Current policy version: {recommendationPolicy.version}
-        </Typography>
+        {resolvedResult.metadata.hasLocalOverrides ? (
+          <Typography variant="body2" color="text.secondary">
+            This recommendation uses locally recalibrated rule settings.
+          </Typography>
+        ) : null}
         <Button type="button" variant="text" onClick={handleStartOver} sx={{ alignSelf: 'flex-start' }}>
           Start over
         </Button>

@@ -1,8 +1,6 @@
 import { Alert, Button, Grid2 as Grid, Paper, Snackbar, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
-import { isValidOverrideScore } from '../../decision/recalibration/validateRecalibrationOverride';
-import type { Path } from '../../decision/types/Path';
 import type { RecalibrationOverrides } from '../../decision/types/Recalibration';
 import {
   clearRecalibrationOverrides,
@@ -19,8 +17,7 @@ import {
   type RuleDraft,
   type RuleView
 } from './recalibrationTypes';
-
-type ValidationErrors = Partial<Record<Path | 'reason', string>>;
+import { validateDraft, type ValidationErrors } from './validateDraft';
 
 function buildRuleViews(overrides: RecalibrationOverrides | null): RuleView[] {
   return [
@@ -54,24 +51,6 @@ function buildOverridesPayload(
     updatedAt: latestUpdatedAt,
     overrides: nextOverrides
   };
-}
-
-export function validateDraft(draft: RuleDraft): ValidationErrors {
-  const errors: ValidationErrors = {};
-
-  for (const [path, value] of Object.entries(draft.scores) as Array<[Path, string]>) {
-    const numericValue = Number(value);
-
-    if (!isValidOverrideScore(numericValue)) {
-      errors[path] = 'Choose a score between -5 and 5.';
-    }
-  }
-
-  if (!draft.reason.trim()) {
-    errors.reason = 'Reason is required.';
-  }
-
-  return errors;
 }
 
 function findSourceEditableRule(ruleId: string) {

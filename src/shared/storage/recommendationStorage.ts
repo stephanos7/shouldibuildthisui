@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ActivePolicyMetadata } from '../../decision/recalibration/getActivePolicyMetadata';
 import type { DecisionResult } from '../../decision/types/DecisionResult';
 import { questionnaireSchema, type QuestionnaireValues } from '../../features/questionnaire/questionnaireSchema';
 import { STORAGE_KEYS } from './localStorageKeys';
@@ -48,6 +49,12 @@ const decisionResultSchema: z.ZodType<DecisionResult> = z.object({
   })
 });
 
+const activePolicyMetadataSchema: z.ZodType<ActivePolicyMetadata> = z.object({
+  policyVersion: z.string(),
+  recalibrationUpdatedAt: z.string().nullable(),
+  hasLocalOverrides: z.boolean()
+});
+
 const questionnaireDraftSchema = z.object({
   version: z.literal(storageVersion),
   savedAt: z.string(),
@@ -58,7 +65,8 @@ const storedDecisionResultSchema = z.object({
   version: z.literal(storageVersion),
   savedAt: z.string(),
   input: questionnaireSchema,
-  result: decisionResultSchema
+  result: decisionResultSchema,
+  metadata: activePolicyMetadataSchema
 });
 
 export type StoredQuestionnaireDraft = {
@@ -72,6 +80,7 @@ export type StoredDecisionResult = {
   savedAt: string;
   input: QuestionnaireValues;
   result: DecisionResult;
+  metadata: ActivePolicyMetadata;
 };
 
 export function saveQuestionnaireDraft(values: QuestionnaireValues): void {
@@ -96,12 +105,17 @@ export function clearQuestionnaireDraft(): void {
   safeRemoveItem(STORAGE_KEYS.questionnaireDraft);
 }
 
-export function saveDecisionResult(input: QuestionnaireValues, result: DecisionResult): void {
+export function saveDecisionResult(
+  input: QuestionnaireValues,
+  result: DecisionResult,
+  metadata: ActivePolicyMetadata
+): void {
   safeWriteJson(STORAGE_KEYS.decisionResult, {
     version: storageVersion,
     savedAt: new Date().toISOString(),
     input,
-    result
+    result,
+    metadata
   } satisfies StoredDecisionResult);
 }
 

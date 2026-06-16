@@ -119,6 +119,8 @@ Each scenario includes:
 
 `calibrationScenarios.test.ts` runs every scenario through `decide()` against the assembled policy. When policy behavior changes, update scenarios only if the business intent has changed. Do not patch around failures by stacking unrelated rules.
 
+At runtime, the questionnaire, stored-result recomputation path, and internal calibration page should evaluate against the active assembled policy, including any saved recalibration overrides that match the current base policy version.
+
 ## Related docs
 
 - `docs/input-dictionary.md`

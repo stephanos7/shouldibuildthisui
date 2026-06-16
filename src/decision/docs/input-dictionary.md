@@ -9,8 +9,8 @@ This document explains every `DecisionFacts` field used by the decision engine. 
 - User-facing meaning: size of the frontend developer population working on the React UI estate.
 - Allowed values: `1_9`, `10_19`, `20_49`, `50_plus`
 - Why it matters: broader frontend ownership usually increases governance and reuse pressure, especially when it overlaps with many teams and many apps.
-- Main affected paths: mostly `mui_x_premium` and `mui_x_enterprise` when combined with scale signals.
-- Common interactions: contributes to large-organization scenarios, especially alongside `teamCount`, `reactAppCount`, and `standardizationIntent`.
+- Main affected paths: `build_it_yourself` for narrow local scope and `mui_x_premium` / `mui_x_enterprise` when combined with broader rollout signals.
+- Common interactions: contributes to narrow-scope guardrails and large-organization scenarios, especially alongside `teamCount` and `reactAppCount`.
 
 ### `teamCount`
 
@@ -43,8 +43,8 @@ This document explains every `DecisionFacts` field used by the decision engine. 
 - User-facing meaning: amount of friction between design and engineering during handoff and iteration.
 - Allowed values: `low`, `medium`, `high`, `severe`
 - Why it matters: this field captures workflow pain that may justify more standardization later.
-- Main affected paths: none directly in the current policy.
-- Common interactions: none yet. It is intentionally present in `DecisionFacts` so future policy tuning can use it without changing the input model.
+- Main affected paths: `mui_core`, `mui_x_premium`, and `mui_x_enterprise` when friction reinforces standardization goals.
+- Common interactions: used by cross-app standardization and org-wide platform interactions to strengthen shared-platform recommendations when workflow friction is high.
 
 ### `standardizationIntent`
 
@@ -102,9 +102,9 @@ This document explains every `DecisionFacts` field used by the decision engine. 
 
 - User-facing meaning: how performance-sensitive the UI interactions are under real workload.
 - Allowed values: `low`, `medium`, `high`, `critical`
-- Why it matters: performance criticality is a meaningful product signal and may become a future scoring input.
-- Main affected paths: none directly in the current policy.
-- Common interactions: none yet.
+- Why it matters: performance criticality is a meaningful product signal when advanced data-heavy experiences must also meet higher responsiveness expectations.
+- Main affected paths: `mui_x_premium` for advanced grids and `mui_x_enterprise` for mission-critical grid workflows with stricter performance demands.
+- Common interactions: used by advanced-grid and mission-critical-grid interactions to add context rather than act as a standalone enterprise signal.
 
 ## Quality, support, and delivery
 
@@ -144,5 +144,4 @@ This document explains every `DecisionFacts` field used by the decision engine. 
 
 - All fields are validated in `src/features/questionnaire/questionnaireSchema.ts`.
 - All fields are represented in `src/features/questionnaire/questions.ts`.
-- Not every field currently affects scoring directly.
-- Unused fields are still part of the normalized input contract and may be incorporated later through documented policy changes, not UI heuristics.
+- Every required field currently participates in at least one policy rule condition.

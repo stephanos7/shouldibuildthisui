@@ -82,6 +82,18 @@ describe('policy integrity', () => {
   it('requires a non-empty policy version', () => {
     expect(recommendationPolicy.version.trim()).not.toBe('');
   });
+
+  it('references every required decision fact in at least one rule condition', () => {
+    const referencedFields = new Set(
+      getAllRules(recommendationPolicy).flatMap((rule) =>
+        rule.conditions.map((condition) => condition.field)
+      )
+    );
+
+    for (const fieldName of Object.keys(decisionFactOptions) as Array<keyof typeof decisionFactOptions>) {
+      expect(referencedFields.has(fieldName)).toBe(true);
+    }
+  });
 });
 
 describe('validatePolicy failures', () => {

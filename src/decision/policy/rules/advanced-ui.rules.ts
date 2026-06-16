@@ -25,6 +25,37 @@ export const advancedUiInteractionRules = [
     }
   },
   {
+    id: 'advanced-ui-performance-sensitive-grids',
+    label: 'Performance-sensitive advanced grids',
+    intent: 'Strengthen premium recommendations when advanced data experiences also carry higher performance demands.',
+    reason: 'Advanced grids with higher performance requirements increase the value of richer prebuilt UI capabilities.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      { field: 'dataGridComplexity', operator: 'equals', value: 'advanced_grids' },
+      { field: 'performanceCriticality', operator: 'in', value: ['high', 'critical'] }
+    ],
+    scores: {
+      mui_x_premium: 2
+    }
+  },
+  {
+    id: 'advanced-ui-critical-performance-mission-critical-grids',
+    label: 'Mission-critical grids with critical performance demands',
+    intent: 'Escalate to stronger enterprise support when the hardest grid workflows must also meet the strictest performance bar.',
+    reason: 'Mission-critical grid workflows with critical performance demands increase the value of enterprise-grade capabilities and support.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      { field: 'dataGridComplexity', operator: 'equals', value: 'mission_critical_grids' },
+      { field: 'performanceCriticality', operator: 'equals', value: 'critical' }
+    ],
+    scores: {
+      mui_x_premium: 1,
+      mui_x_enterprise: 3
+    }
+  },
+  {
     id: 'advanced-ui-mission-critical-grid-enterprise-support',
     label: 'Mission-critical grids with enterprise support',
     intent: 'Escalate to enterprise when the hardest data workflows also require top-tier support.',

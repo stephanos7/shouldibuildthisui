@@ -6,10 +6,12 @@ import { routes } from '../../../app/routes';
 import { theme } from '../../../app/theme';
 import { decide } from '../../../decision/engine/decide';
 import { recommendationPolicy } from '../../../decision/policy/recommendationPolicy';
+import { getActivePolicyMetadata } from '../../../decision/recalibration/getActivePolicyMetadata';
 import { getPathDefinition } from '../resultContent';
 import type { DecisionResult } from '../../../decision/types/DecisionResult';
 import type { QuestionnaireResultState } from '../../questionnaire/questionnaireResultState';
 import { STORAGE_KEYS } from '../../../shared/storage/localStorageKeys';
+import { saveRecalibrationOverrides } from '../../../shared/storage/recalibrationStorage';
 import { loadDecisionResult, saveDecisionResult } from '../../../shared/storage/recommendationStorage';
 
 const questionnaireFixture = {
@@ -93,6 +95,21 @@ const routeStateResult: DecisionResult = {
 };
 
 const currentPolicyResult = decide(questionnaireFixture, recommendationPolicy);
+const currentPolicyMetadata = getActivePolicyMetadata(null);
+const nonGateQuestionnaireFixture = {
+  ...questionnaireFixture,
+  teamCount: '1',
+  reactAppCount: '1',
+  dataGridComplexity: 'none',
+  applicationCriticality: 'customer_facing',
+  supportExpectation: 'standard_support',
+  ownershipHorizon: 'long_term',
+  standardizationIntent: 'none',
+  designSystemMaturity: 'none',
+  designEngineeringFriction: 'low',
+  uiRegressionFrequency: 'rare',
+  changeLeadTime: 'same_day'
+} as const;
 
 function renderResultRoute(state?: QuestionnaireResultState) {
   const router = createMemoryRouter(routes, {
@@ -151,7 +168,11 @@ describe('ResultPage', () => {
   });
 
   it('restores stored result when route state is missing', () => {
-    saveDecisionResult(questionnaireFixture as QuestionnaireResultState['input'], currentPolicyResult);
+    saveDecisionResult(
+      questionnaireFixture as QuestionnaireResultState['input'],
+      currentPolicyResult,
+      currentPolicyMetadata
+    );
 
     renderResultRoute();
 
@@ -163,14 +184,19 @@ describe('ResultPage', () => {
     expect(screen.getByText(new RegExp(currentPolicyResult.explanation.summary, 'i'))).toBeInTheDocument();
   });
 
-  it('recomputes result when stored policy version differs', async () => {
+  it('recomputes result and resaves when stored metadata differs', async () => {
     window.localStorage.setItem(
       STORAGE_KEYS.decisionResult,
       JSON.stringify({
         version: 1,
         savedAt: '2026-01-01T00:00:00.000Z',
         input: questionnaireFixture,
-        result: routeStateResult
+        result: routeStateResult,
+        metadata: {
+          policyVersion: routeStateResult.policyVersion,
+          recalibrationUpdatedAt: null,
+          hasLocalOverrides: false
+        }
       })
     );
 
@@ -182,7 +208,63 @@ describe('ResultPage', () => {
 
     await waitFor(() => {
       expect(loadDecisionResult()?.result.policyVersion).toBe(recommendationPolicy.version);
+      expect(loadDecisionResult()?.metadata).toEqual(currentPolicyMetadata);
     });
+  });
+
+  it('recomputes a stored result against the active recalibrated policy and shows the recalibration note', async () => {
+    saveRecalibrationOverrides({
+      version: 1,
+      policyVersion: recommendationPolicy.version,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      overrides: {
+        'scope-single-team-local-choice': {
+          ruleId: 'scope-single-team-local-choice',
+          scores: {
+            build_it_yourself: 0,
+            mui_core: 4
+          },
+          reason: 'Single-team scope now prefers a reusable shared foundation.',
+          updatedAt: '2026-01-01T00:00:00.000Z'
+        }
+      }
+    });
+
+    saveDecisionResult(
+      nonGateQuestionnaireFixture as QuestionnaireResultState['input'],
+      decide(nonGateQuestionnaireFixture, recommendationPolicy),
+      currentPolicyMetadata
+    );
+
+    renderResultRoute();
+
+    expect((await screen.findAllByText(/mui core/i)).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/this recommendation uses locally recalibrated rule settings\./i)
+    ).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(loadDecisionResult()?.result.recommendation).toBe('mui_core');
+      expect(loadDecisionResult()?.metadata).toEqual({
+        policyVersion: recommendationPolicy.version,
+        recalibrationUpdatedAt: '2026-01-01T00:00:00.000Z',
+        hasLocalOverrides: true
+      });
+    });
+  });
+
+  it('does not render the recalibration note when no local overrides are active', () => {
+    saveDecisionResult(
+      questionnaireFixture as QuestionnaireResultState['input'],
+      currentPolicyResult,
+      currentPolicyMetadata
+    );
+
+    renderResultRoute();
+
+    expect(
+      screen.queryByText(/this recommendation uses locally recalibrated rule settings\./i)
+    ).not.toBeInTheDocument();
   });
 
   it('renders a fallback when no stored result exists', () => {

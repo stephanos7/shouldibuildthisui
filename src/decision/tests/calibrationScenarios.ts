@@ -112,6 +112,32 @@ export const calibrationScenarios: CalibrationScenario[] = [
     notes: 'Broad rollout still pushes the current policy toward Premium even when UI complexity stays low.'
   },
   {
+    id: 'large-frontend-narrow-scope',
+    label: 'Large frontend population with narrow scope',
+    input: createFacts({
+      frontendDeveloperCount: '50_plus',
+      teamCount: '1',
+      reactAppCount: '1',
+      dataGridComplexity: 'simple_tables',
+      standardizationIntent: 'none'
+    }),
+    expectedRecommendation: 'build_it_yourself',
+    notes: 'A large frontend population alone should not outweigh a single-team, single-app scope.'
+  },
+  {
+    id: 'large-frontend-broad-rollout',
+    label: 'Large frontend population with broad rollout',
+    input: createFacts({
+      frontendDeveloperCount: '50_plus',
+      teamCount: '8_plus',
+      reactAppCount: '11_plus',
+      standardizationIntent: 'cross_app_consistency',
+      supportExpectation: 'standard_support'
+    }),
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Broad rollout with a large frontend population should strengthen shared-platform recommendations without requiring enterprise support.'
+  },
+  {
     id: 'multi-team-multi-app-enterprise',
     label: 'Multi-team multi-app enterprise pattern',
     input: createFacts({
@@ -326,6 +352,42 @@ export const calibrationScenarios: CalibrationScenario[] = [
       reactAppCount: '2_4'
     }),
     expectedRecommendation: 'mui_core',
-    notes: 'Cross-app consistency should still recommend Core while friction is not yet separately scored.'
+    notes: 'Cross-app consistency with severe workflow friction should still recommend Core for moderate-scale shared foundations.'
+  },
+  {
+    id: 'design-engineering-friction-org-wide-platform',
+    label: 'Severe design-engineering friction with org-wide platform intent',
+    input: createFacts({
+      designEngineeringFriction: 'severe',
+      standardizationIntent: 'org_wide_platform',
+      designSystemMaturity: 'centralized',
+      teamCount: '4_7',
+      reactAppCount: '5_10'
+    }),
+    expectedRecommendation: 'mui_x_enterprise',
+    notes: 'Severe workflow friction should reinforce enterprise coordination when the organization is aiming for an org-wide platform.'
+  },
+  {
+    id: 'advanced-grids-high-performance',
+    label: 'Advanced grids with high performance criticality',
+    input: createFacts({
+      teamCount: '2_3',
+      reactAppCount: '2_4',
+      dataGridComplexity: 'advanced_grids',
+      performanceCriticality: 'high'
+    }),
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Higher performance needs should reinforce Premium when advanced grids are already in scope.'
+  },
+  {
+    id: 'mission-critical-grids-critical-performance',
+    label: 'Mission-critical grids with critical performance',
+    input: createFacts({
+      dataGridComplexity: 'mission_critical_grids',
+      performanceCriticality: 'critical',
+      supportExpectation: 'enterprise_support'
+    }),
+    expectedRecommendation: 'mui_x_enterprise',
+    notes: 'Mission-critical grids plus critical performance and enterprise support should clearly favor Enterprise.'
   }
 ];

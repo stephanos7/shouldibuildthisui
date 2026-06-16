@@ -7,6 +7,7 @@ Calibration keeps the recommendation policy understandable as it evolves. The go
 - Scenarios: `src/decision/tests/calibrationScenarios.ts`
 - Scenario test: `src/decision/tests/calibrationScenarios.test.ts`
 - Policy under test: `src/decision/policy/recommendationPolicy.ts`
+- Runtime calibration review: `src/features/calibration/CalibrationPage.tsx`, which evaluates scenarios against the active assembled policy including saved recalibration overrides.
 
 Each scenario is a named business example with normalized inputs and an expected recommendation.
 

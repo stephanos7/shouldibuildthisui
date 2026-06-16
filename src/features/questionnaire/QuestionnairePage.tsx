@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { decide } from '../../decision/engine/decide';
-import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { getActiveRecommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { getActivePolicyMetadata } from '../../decision/recalibration/getActivePolicyMetadata';
 import { clearRecommendationSession, loadQuestionnaireDraft, saveDecisionResult, saveQuestionnaireDraft } from '../../shared/storage/recommendationStorage';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
 import { questionIds, questionnaireSections, questions } from './questions';
@@ -46,9 +47,11 @@ export default function QuestionnairePage() {
   }, [watchedValues]);
 
   const onSubmit = (values: QuestionnaireValues) => {
-    const result = decide(values, recommendationPolicy);
+    const activePolicy = getActiveRecommendationPolicy();
+    const activePolicyMetadata = getActivePolicyMetadata();
+    const result = decide(values, activePolicy);
     saveQuestionnaireDraft(values);
-    saveDecisionResult(values, result);
+    saveDecisionResult(values, result, activePolicyMetadata);
     const routeState: QuestionnaireResultState = {
       input: values,
       result

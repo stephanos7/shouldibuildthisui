@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { decide } from '../../../decision/engine/decide';
 import { recommendationPolicy } from '../../../decision/policy/recommendationPolicy';
+import { getActivePolicyMetadata } from '../../../decision/recalibration/getActivePolicyMetadata';
 import { STORAGE_KEYS } from '../localStorageKeys';
 import {
   clearDecisionResult,
@@ -33,6 +34,7 @@ const questionnaireFixture: QuestionnaireValues = {
 };
 
 const resultFixture = decide(questionnaireFixture, recommendationPolicy);
+const metadataFixture = getActivePolicyMetadata(null);
 
 afterEach(() => {
   window.localStorage.clear();
@@ -46,12 +48,13 @@ describe('recommendationStorage', () => {
   });
 
   it('saves and loads decision results', () => {
-    saveDecisionResult(questionnaireFixture, resultFixture);
+    saveDecisionResult(questionnaireFixture, resultFixture, metadataFixture);
 
     const storedResult = loadDecisionResult();
 
     expect(storedResult?.input).toEqual(questionnaireFixture);
     expect(storedResult?.result).toEqual(resultFixture);
+    expect(storedResult?.metadata).toEqual(metadataFixture);
     expect(storedResult?.version).toBe(1);
     expect(storedResult?.savedAt).toEqual(expect.any(String));
   });
@@ -71,7 +74,8 @@ describe('recommendationStorage', () => {
         version: 2,
         savedAt: '2026-01-01T00:00:00.000Z',
         input: questionnaireFixture,
-        result: resultFixture
+        result: resultFixture,
+        metadata: metadataFixture
       })
     );
 
@@ -83,7 +87,7 @@ describe('recommendationStorage', () => {
 
   it('clears stored session data', () => {
     saveQuestionnaireDraft(questionnaireFixture);
-    saveDecisionResult(questionnaireFixture, resultFixture);
+    saveDecisionResult(questionnaireFixture, resultFixture, metadataFixture);
 
     clearRecommendationSession();
 
@@ -93,7 +97,7 @@ describe('recommendationStorage', () => {
 
   it('clears individual stored entries', () => {
     saveQuestionnaireDraft(questionnaireFixture);
-    saveDecisionResult(questionnaireFixture, resultFixture);
+    saveDecisionResult(questionnaireFixture, resultFixture, metadataFixture);
 
     clearQuestionnaireDraft();
     expect(window.localStorage.getItem(STORAGE_KEYS.questionnaireDraft)).toBeNull();
