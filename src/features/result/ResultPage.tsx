@@ -1,5 +1,9 @@
 import { Button, Grid, Paper, Stack, Typography } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { decide } from '../../decision/engine/decide';
+import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { clearRecommendationSession, loadDecisionResult, saveDecisionResult } from '../../shared/storage/recommendationStorage';
 import type { QuestionnaireResultState } from '../questionnaire/questionnaireResultState';
 import ExplanationList from './ExplanationList';
 import RecommendationCard from './RecommendationCard';
@@ -11,7 +15,51 @@ type ResultPageProps = {
 };
 
 export default function ResultPage({ state }: ResultPageProps) {
-  if (!state) {
+  const navigate = useNavigate();
+  const resolvedResult = useMemo(() => {
+    if (state) {
+      return {
+        input: state.input,
+        result: state.result,
+        shouldPersist: true
+      };
+    }
+
+    const storedResult = loadDecisionResult();
+
+    if (!storedResult) {
+      return null;
+    }
+
+    if (storedResult.result.policyVersion === recommendationPolicy.version) {
+      return {
+        input: storedResult.input,
+        result: storedResult.result,
+        shouldPersist: false
+      };
+    }
+
+    return {
+      input: storedResult.input,
+      result: decide(storedResult.input, recommendationPolicy),
+      shouldPersist: true
+    };
+  }, [state]);
+
+  useEffect(() => {
+    if (!resolvedResult?.shouldPersist) {
+      return;
+    }
+
+    saveDecisionResult(resolvedResult.input, resolvedResult.result);
+  }, [resolvedResult]);
+
+  const handleStartOver = () => {
+    clearRecommendationSession();
+    navigate('/');
+  };
+
+  if (!resolvedResult) {
     return (
       <Paper variant="outlined" sx={{ p: 4, maxWidth: 720 }}>
         <Stack spacing={2}>
@@ -38,18 +86,24 @@ export default function ResultPage({ state }: ResultPageProps) {
         <Typography color="text.secondary">
           Review the recommendation, confidence, applied rules, and full score breakdown.
         </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Current policy version: {recommendationPolicy.version}
+        </Typography>
+        <Button type="button" variant="text" onClick={handleStartOver} sx={{ alignSelf: 'flex-start' }}>
+          Start over
+        </Button>
       </Stack>
-      <RecommendationCard result={state.result} />
+      <RecommendationCard result={resolvedResult.result} />
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={5}>
-          <RunnerUpCard result={state.result} />
+          <RunnerUpCard result={resolvedResult.result} />
         </Grid>
         <Grid item xs={12} md={7}>
-          <ExplanationList result={state.result} />
+          <ExplanationList result={resolvedResult.result} />
         </Grid>
         <Grid item xs={12}>
-          <ScoreBreakdown result={state.result} />
+          <ScoreBreakdown result={resolvedResult.result} />
         </Grid>
       </Grid>
     </Stack>

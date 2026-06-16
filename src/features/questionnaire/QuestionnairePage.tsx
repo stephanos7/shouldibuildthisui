@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Button, Container, FormHelperText, Stack, Typography } from '@mui/material';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useEffect, useMemo, useRef } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { decide } from '../../decision/engine/decide';
 import { recommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { clearRecommendationSession, loadQuestionnaireDraft, saveDecisionResult, saveQuestionnaireDraft } from '../../shared/storage/recommendationStorage';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
 import { questionnaireSections, questions } from './questions';
 import QuestionSection from './QuestionSection';
@@ -16,18 +18,36 @@ const questionsBySection = questionnaireSections.map((section) => ({
 
 export default function QuestionnairePage() {
   const navigate = useNavigate();
+  const savedDraft = useMemo(() => loadQuestionnaireDraft(), []);
   const methods = useForm<QuestionnaireValues>({
     resolver: zodResolver(questionnaireSchema),
-    mode: 'onBlur'
+    mode: 'onBlur',
+    defaultValues: savedDraft ?? undefined
   });
+  const persistenceReadyRef = useRef(false);
 
   const {
     handleSubmit,
+    reset,
+    control,
     formState: { errors, isSubmitting }
   } = methods;
 
+  const watchedValues = useWatch({ control });
+
+  useEffect(() => {
+    if (!persistenceReadyRef.current) {
+      persistenceReadyRef.current = true;
+      return;
+    }
+
+    saveQuestionnaireDraft(watchedValues as QuestionnaireValues);
+  }, [watchedValues]);
+
   const onSubmit = (values: QuestionnaireValues) => {
     const result = decide(values, recommendationPolicy);
+    saveQuestionnaireDraft(values);
+    saveDecisionResult(values, result);
     const routeState: QuestionnaireResultState = {
       input: values,
       result
@@ -36,6 +56,12 @@ export default function QuestionnairePage() {
     navigate('/result', {
       state: routeState
     });
+  };
+
+  const handleStartOver = () => {
+    clearRecommendationSession();
+    persistenceReadyRef.current = false;
+    reset({});
   };
 
   return (
@@ -73,6 +99,9 @@ export default function QuestionnairePage() {
           <Stack spacing={1.5} alignItems="flex-start">
             <Button type="submit" variant="contained" size="large" disabled={isSubmitting}>
               Get recommendation
+            </Button>
+            <Button type="button" variant="text" onClick={handleStartOver}>
+              Clear saved answers
             </Button>
             {Object.keys(errors).length > 0 ? (
               <FormHelperText error>All questions are required.</FormHelperText>

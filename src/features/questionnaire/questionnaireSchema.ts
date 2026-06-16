@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import type { DecisionFacts } from '../../decision/types/DecisionFacts';
 
-export const questionnaireSchema: z.ZodType<DecisionFacts> = z.object({
+export const questionnaireSchema = z.object({
   frontendDeveloperCount: z.enum(['1_9', '10_19', '20_49', '50_plus']),
   teamCount: z.enum(['1', '2_3', '4_7', '8_plus']),
   reactAppCount: z.enum(['1', '2_4', '5_10', '11_plus']),
