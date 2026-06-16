@@ -113,6 +113,12 @@ That module combines:
 
 The current policy intentionally ships exactly one gate in `src/decision/policy/rules/gate.rules.ts`. It exists only to short-circuit a narrow internal prototype case. Everything else is decided through scoring.
 
+## Recalibration overview
+
+The app also ships an internal recalibration UI at `/internal/recalibration`.
+
+It does not replace the base policy. The active policy is the shipped base policy plus any compatible local browser overrides for editable non-gate rules. Those overrides are stored only in local `localStorage`, are not shared with other users, and do not allow editing gates or rule conditions.
+
 ## Further reading
 
 - Decision overview: `src/decision/README.md`
@@ -120,4 +126,6 @@ The current policy intentionally ships exactly one gate in `src/decision/policy/
 - Scoring model: `src/decision/docs/scoring-model.md`
 - Rule authoring: `src/decision/docs/rule-authoring-guide.md`
 - Calibration workflow: `src/decision/docs/calibration-guide.md`
+- Recalibration workflow: `src/decision/docs/recalibration-guide.md`
+- Rule editing in recalibration: `src/decision/docs/rule-editing-guide.md`
 - Adding a question: `src/decision/docs/adding-a-question.md`

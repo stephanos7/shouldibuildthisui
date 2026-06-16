@@ -695,11 +695,14 @@ Recommendation result
 
 /internal/calibration
 Read-only calibration review
+
+/internal/recalibration
+Local rule recalibration
 ```
 
 Do not add authentication in the initial implementation.
 
-Do not add policy editing in the initial implementation.
+Do not add full policy editing or backend policy management in the initial implementation.
 
 ---
 
@@ -777,9 +780,12 @@ Create:
 src/features/calibration/CalibrationPage.tsx
 src/features/calibration/ScenarioTable.tsx
 src/features/calibration/ScenarioDetailsDrawer.tsx
+src/features/recalibration/RecalibrationPage.tsx
+src/features/recalibration/RuleList.tsx
+src/features/recalibration/RuleEditPanel.tsx
 ```
 
-The calibration page should:
+The internal calibration page should:
 
 - load calibration scenarios
 - run each scenario through `decide()`
@@ -793,7 +799,17 @@ The calibration page should:
 
 This page is read-only.
 
-Do not add policy editing.
+The internal recalibration page should:
+
+- show editable base rules and interaction rules
+- show gate rules as fixed and read-only
+- allow rule-level enable or disable changes
+- allow integer score edits
+- allow reason edits
+- persist local browser-only overrides
+- preserve rule conditions as read-only
+
+Do not add full policy editing, backend persistence, or editable gates.
 
 ---
 
@@ -862,6 +878,8 @@ src/decision/docs/input-dictionary.md
 src/decision/docs/scoring-model.md
 src/decision/docs/rule-authoring-guide.md
 src/decision/docs/calibration-guide.md
+src/decision/docs/recalibration-guide.md
+src/decision/docs/rule-editing-guide.md
 src/decision/docs/adding-a-question.md
 ```
 
@@ -876,6 +894,8 @@ Documentation should explain:
 - confidence calculation
 - how explanations are generated
 - how calibration scenarios protect behavior
+- how the active policy is assembled from base policy plus local overrides
+- why only editable non-gate rules can be recalibrated
 - how to add a new input
 - how to change recommendation behavior safely
 
@@ -1045,7 +1065,27 @@ Acceptance:
 
 ---
 
-### PR 9: Documentation
+### PR 9: Internal recalibration UI
+
+Scope:
+
+- `/internal/recalibration`
+- local browser-only override storage
+- editable base and interaction rules
+- gate rules shown as fixed
+- read-only condition display
+
+Acceptance:
+
+- active policy equals base policy plus compatible local overrides
+- only editable non-gate rules can be changed
+- gate overrides are ignored
+- rule conditions remain read-only
+- reset actions restore shipped rule values locally
+
+---
+
+### PR 10: Documentation and maintainer guides
 
 Scope:
 
@@ -1055,15 +1095,19 @@ Scope:
 - scoring guide
 - rule-authoring guide
 - calibration guide
+- recalibration guide
+- rule-editing guide
 - adding-a-question guide
 
 Acceptance:
 
-- new maintainer can understand architecture and make safe changes
+- new maintainer can understand architecture and make safe policy or recalibration changes
+- doc claims match the shipped recalibration system
+- local override limits are clearly documented
 
 ---
 
-### PR 10: Final hardening
+### PR 11: Final hardening
 
 Scope:
 
@@ -1077,6 +1121,7 @@ Acceptance:
 - all validation commands pass
 - no business logic in UI
 - exactly one gate remains
+- recalibration remains local-only and rule-level
 - no new scope added
 
 ---
@@ -1114,6 +1159,7 @@ The first complete implementation is done when:
 - policy integrity tests pass
 - calibration scenario tests pass
 - docs explain how to change the system safely
+- docs explain how local recalibration composes with the base policy
 - no React component contains recommendation logic
 
 ---
@@ -1122,7 +1168,7 @@ The first complete implementation is done when:
 
 Do not build:
 
-- policy editor
+- full policy editor
 - admin authentication
 - backend persistence
 - analytics dashboard

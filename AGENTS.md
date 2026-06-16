@@ -243,6 +243,32 @@ Prefer adjusting existing rules before adding new ones.
 
 ---
 
+## Recalibration Constraints
+
+The shipped internal recalibration UI is a local maintainer tool, not a second policy system.
+
+Recalibration must remain constrained:
+
+- do not add new editable recommendation paths without explicit approval
+- do not add new editable inputs without explicit approval
+- do not add new editable gates without explicit approval
+- do not add editable conditions without explicit approval
+
+Local recalibration stores rule-level overrides only.
+
+Do not treat local recalibration as whole-policy persistence or backend-backed policy management.
+
+Recommendation behavior changes must prefer active-policy composition over UI heuristics.
+
+If recalibration behavior changes, keep the source-of-truth model as:
+
+- shipped base policy in source control
+- active policy assembled from base policy plus matching local overrides
+- gate rules fixed
+- conditions read-only
+
+---
+
 ## Documentation Expectations
 
 When introducing:
