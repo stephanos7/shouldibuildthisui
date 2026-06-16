@@ -17,7 +17,7 @@ describe('app routes', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: /routing and mui shell are ready/i
+        name: /assess your react ui delivery needs/i
       })
     ).toBeInTheDocument();
   });
