@@ -61,7 +61,7 @@ describe('QuestionnairePage', () => {
       expect(router.state.location.pathname).toBe('/result');
     });
 
-    expect(screen.getByText(/recommendation calculated/i)).toBeInTheDocument();
-    expect(screen.getByText(/recommendation:/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/build it yourself/i)[0]).toBeInTheDocument();
   });
 });
