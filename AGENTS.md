@@ -343,3 +343,19 @@ Prefer:
 - rule explanations over hidden behavior
 
 The recommendation system is a business policy engine, not a technical optimization problem.
+
+## Implementation Plan
+
+For this project, follow `IMPLEMENTATION_PLAN.md` as the source of truth for build order, PR sequencing, scope boundaries, and acceptance criteria.
+
+Do not implement the whole app in one pass.
+
+For each implementation task:
+
+1. Identify the relevant PR section in `IMPLEMENTATION_PLAN.md`.
+2. Modify only the files needed for that PR.
+3. Do not pull in future PR scope.
+4. Run the required validation commands.
+5. Summarize what changed and whether acceptance criteria were met.
+
+If `IMPLEMENTATION_PLAN.md` conflicts with this `AGENTS.md`, follow `AGENTS.md` for architectural constraints and `IMPLEMENTATION_PLAN.md` for sequencing.
