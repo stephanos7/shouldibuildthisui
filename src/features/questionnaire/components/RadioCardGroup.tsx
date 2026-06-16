@@ -31,20 +31,35 @@ export default function RadioCardGroup({
   onBlur,
   onChange
 }: RadioCardGroupProps) {
+  const labelId = `${name}-label`;
+  const helperTextId = helperText ? `${name}-helper-text` : undefined;
+  const errorId = error ? `${name}-error` : undefined;
+  const descriptionIds = [helperTextId, errorId].filter(Boolean).join(' ') || undefined;
+
   return (
     <FormControl error={Boolean(error)} component="fieldset" fullWidth>
       <Stack spacing={2}>
         <Stack spacing={0.75}>
-          <FormLabel component="legend" sx={{ color: 'text.primary', typography: 'h6' }}>
+          <FormLabel
+            id={labelId}
+            component="legend"
+            sx={{ color: 'text.primary', typography: 'h6' }}
+          >
             {label}
           </FormLabel>
           {helperText ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography id={helperTextId} variant="body2" color="text.secondary">
               {helperText}
             </Typography>
           ) : null}
         </Stack>
-        <RadioGroup name={name} value={value ?? ''} onBlur={onBlur}>
+        <RadioGroup
+          name={name}
+          value={value ?? ''}
+          onBlur={onBlur}
+          aria-labelledby={labelId}
+          aria-describedby={descriptionIds}
+        >
           <Stack spacing={1.5}>
             {options.map((option) => {
               const selected = value === option.value;
@@ -74,7 +89,10 @@ export default function RadioCardGroup({
                         checked={selected}
                         onChange={() => onChange(option.value)}
                         value={option.value}
-                        inputProps={{ 'aria-label': option.label }}
+                        inputProps={{
+                          'aria-label': option.label,
+                          'aria-describedby': descriptionIds
+                        }}
                       />
                       <Stack spacing={0.5}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -93,7 +111,7 @@ export default function RadioCardGroup({
             })}
           </Stack>
         </RadioGroup>
-        {error ? <FormHelperText>{error}</FormHelperText> : null}
+        {error ? <FormHelperText id={errorId}>{error}</FormHelperText> : null}
       </Stack>
     </FormControl>
   );

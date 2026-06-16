@@ -57,7 +57,7 @@ Questionnaire UI
   -> normalizeQuestionnaireValues()
   -> DecisionFacts
   -> decide()
-  -> gate rules
+  -> gate evaluation
   -> base rules
   -> interaction rules
   -> score aggregation

@@ -1,7 +1,7 @@
 import {
   FormControl,
   FormHelperText,
-  FormLabel,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -28,22 +28,38 @@ export default function SelectQuestion({
   onBlur,
   onChange
 }: SelectQuestionProps) {
+  const fieldId = `${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-select`;
+  const labelId = `${fieldId}-label`;
+  const helperTextId = helperText ? `${fieldId}-helper-text` : undefined;
+  const errorId = error ? `${fieldId}-error` : undefined;
+  const descriptionIds = [helperTextId, errorId].filter(Boolean).join(' ') || undefined;
+
   return (
     <FormControl error={Boolean(error)} fullWidth>
       <Stack spacing={1.5}>
         <Stack spacing={0.75}>
-          <FormLabel sx={{ color: 'text.primary', typography: 'h6' }}>{label}</FormLabel>
+          <InputLabel
+            id={labelId}
+            shrink
+            sx={{ color: 'text.primary', typography: 'h6', position: 'static', transform: 'none' }}
+          >
+            {label}
+          </InputLabel>
           {helperText ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography id={helperTextId} variant="body2" color="text.secondary">
               {helperText}
             </Typography>
           ) : null}
         </Stack>
         <Select
+          id={fieldId}
+          labelId={labelId}
+          label={label}
           displayEmpty
           value={value ?? ''}
           onBlur={onBlur}
           onChange={(event) => onChange(event.target.value)}
+          aria-describedby={descriptionIds}
         >
           <MenuItem disabled value="">
             Select an option
@@ -54,7 +70,7 @@ export default function SelectQuestion({
             </MenuItem>
           ))}
         </Select>
-        {error ? <FormHelperText>{error}</FormHelperText> : null}
+        {error ? <FormHelperText id={errorId}>{error}</FormHelperText> : null}
       </Stack>
     </FormControl>
   );
