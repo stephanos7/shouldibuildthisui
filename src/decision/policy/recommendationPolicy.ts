@@ -1,4 +1,7 @@
+import { applyRecalibrationOverrides } from '../recalibration/applyRecalibrationOverrides';
+import type { RecalibrationOverrides } from '../types/Recalibration';
 import type { Policy } from '../types/Policy';
+import { loadRecalibrationOverrides } from '../../shared/storage/recalibrationStorage';
 import { advancedUiInteractionRules } from './rules/advanced-ui.rules';
 import { baseRules } from './rules/base.rules';
 import { deliveryInteractionRules } from './rules/delivery.rules';
@@ -23,3 +26,9 @@ export const recommendationPolicy: Policy = {
     ...deliveryInteractionRules
   ]
 };
+
+export function getActiveRecommendationPolicy(
+  overrides: RecalibrationOverrides | null = loadRecalibrationOverrides()
+): Policy {
+  return applyRecalibrationOverrides(recommendationPolicy, overrides);
+}

@@ -7,6 +7,7 @@ export const gateRules = [
     intent: 'Short-circuit a very narrow internal use case that does not justify platform investment.',
     reason:
       'A single-team internal prototype with simple scope and self-serve expectations is usually best built directly.',
+    editable: false,
     recommendation: 'build_it_yourself',
     conditions: [
       { field: 'ownershipHorizon', operator: 'in', value: ['prototype', 'short_term'] },

@@ -6,6 +6,8 @@ export const qualityRiskInteractionRules = [
     label: 'Fixed deadline with regression risk',
     intent: 'Favor safer delivery choices when teams are under deadline pressure and already unstable.',
     reason: 'Regression-prone UI work under a fixed deadline increases the value of proven prebuilt components.',
+    enabled: true,
+    editable: true,
     conditions: [
       { field: 'deliveryUrgency', operator: 'equals', value: 'fixed_deadline' },
       {
@@ -24,6 +26,8 @@ export const qualityRiskInteractionRules = [
     label: 'Regulated or operationally critical app',
     intent: 'Identify high-risk applications where support and governance become materially more valuable.',
     reason: 'Operationally critical or regulated apps justify stronger support, consistency, and enterprise controls.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'applicationCriticality',

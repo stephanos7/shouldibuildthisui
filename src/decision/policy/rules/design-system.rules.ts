@@ -6,6 +6,8 @@ export const designSystemInteractionRules = [
     label: 'Centralized design system and org-wide standardization',
     intent: 'Identify cases where platform governance is an explicit organizational goal.',
     reason: 'A centralized design system with org-wide standardization needs increases the value of enterprise coordination.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'designSystemMaturity',

@@ -6,6 +6,8 @@ export const maintainabilityInteractionRules = [
     label: 'Concentrated UI knowledge with long ownership horizon',
     intent: 'Push toward stronger standardization when narrow ownership must last.',
     reason: 'Long-lived products with concentrated UI knowledge benefit from reducing person-dependent implementation risk.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'uiKnowledgeDistribution',
@@ -28,6 +30,8 @@ export const maintainabilityInteractionRules = [
     label: 'Frequent regressions and long lead time',
     intent: 'Recognize a maintainability signal that favors stronger supported foundations.',
     reason: 'Frequent regressions combined with slow UI change cycles increase the value of mature reusable components.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'uiRegressionFrequency',

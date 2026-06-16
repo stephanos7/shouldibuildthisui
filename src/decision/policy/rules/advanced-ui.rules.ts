@@ -6,6 +6,8 @@ export const advancedUiInteractionRules = [
     label: 'Small or moderate team with advanced grids',
     intent: 'Recognize when advanced data needs outweigh smaller organizational scale.',
     reason: 'Even smaller teams can justify premium tooling when they rely on advanced grids.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'teamCount',
@@ -27,6 +29,8 @@ export const advancedUiInteractionRules = [
     label: 'Mission-critical grids with enterprise support',
     intent: 'Escalate to enterprise when the hardest data workflows also require top-tier support.',
     reason: 'Mission-critical grids paired with enterprise support needs strongly favor an enterprise package.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'dataGridComplexity',

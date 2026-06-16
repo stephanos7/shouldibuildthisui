@@ -39,6 +39,15 @@ describe('policy integrity', () => {
     }
   });
 
+  it('marks the gate as uneditable and non-gate rules as configurable', () => {
+    expect(recommendationPolicy.gates[0].editable).toBe(false);
+
+    for (const rule of [...recommendationPolicy.baseRules, ...recommendationPolicy.interactionRules]) {
+      expect(rule.enabled).toBeTypeOf('boolean');
+      expect(rule.editable).toBeTypeOf('boolean');
+    }
+  });
+
   it('limits condition fields, values, operators, paths, and score ranges to valid policy data', () => {
     const validFieldNames = new Set(Object.keys(decisionFactOptions));
     const validOperators = new Set(['equals', 'notEquals', 'in', 'notIn']);
@@ -141,6 +150,13 @@ describe('validatePolicy failures', () => {
     } as never;
 
     expect(() => validatePolicy(policy)).toThrow(/invalid path/i);
+  });
+
+  it('rejects editable gates', () => {
+    const policy = clonePolicy(recommendationPolicy);
+    policy.gates[0].editable = true as never;
+
+    expect(() => validatePolicy(policy)).toThrow(/must not be editable/i);
   });
 
   it('rejects non-integer scores', () => {

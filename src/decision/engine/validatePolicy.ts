@@ -24,6 +24,10 @@ export function validatePolicy(policy: Policy): void {
   for (const gate of policy.gates) {
     validateRuleMetadata(gate.id, gate.label, gate.intent, gate.reason, seenRuleIds);
 
+    if (gate.editable !== false) {
+      throw new Error(`Gate "${gate.id}" must not be editable.`);
+    }
+
     if (!VALID_PATHS.has(gate.recommendation)) {
       throw new Error(`Gate "${gate.id}" has an invalid recommendation path.`);
     }
@@ -35,6 +39,10 @@ export function validatePolicy(policy: Policy): void {
 
   for (const rule of [...policy.baseRules, ...policy.interactionRules]) {
     validateRuleMetadata(rule.id, rule.label, rule.intent, rule.reason, seenRuleIds);
+
+    if (typeof rule.enabled !== 'boolean' || typeof rule.editable !== 'boolean') {
+      throw new Error(`Rule "${rule.id}" must include enabled and editable flags.`);
+    }
 
     for (const condition of rule.conditions) {
       validateCondition(rule.id, condition);

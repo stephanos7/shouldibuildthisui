@@ -27,6 +27,7 @@ export type RuleMetadata = {
 };
 
 export type GatePolicy = RuleMetadata & {
+  editable: false;
   conditions: Condition[];
   recommendation: Path;
 };
@@ -34,6 +35,8 @@ export type GatePolicy = RuleMetadata & {
 export type ScoreMap = Partial<Record<Path, number>>;
 
 export type ScoredRule = RuleMetadata & {
+  enabled: boolean;
+  editable: boolean;
   conditions: Condition[];
   scores: ScoreMap;
 };

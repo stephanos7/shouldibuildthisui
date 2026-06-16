@@ -6,6 +6,8 @@ export const scaleInteractionRules = [
     label: 'Moderate team and narrow scope',
     intent: 'Favor a lighter shared foundation when the team is growing but scope is still narrow.',
     reason: 'A moderate team with a narrow React footprint often benefits from MUI Core over heavier options.',
+    enabled: true,
+    editable: true,
     conditions: [
       { field: 'teamCount', operator: 'equals', value: '2_3' },
       { field: 'reactAppCount', operator: 'in', value: ['1', '2_4'] },
@@ -24,6 +26,8 @@ export const scaleInteractionRules = [
     label: 'Multiple teams and multiple apps',
     intent: 'Identify organizational scale where broader governance becomes valuable.',
     reason: 'Multiple teams and apps increase the value of shared standards, advanced capabilities, and support.',
+    enabled: true,
+    editable: true,
     conditions: [
       { field: 'teamCount', operator: 'in', value: ['4_7', '8_plus'] },
       { field: 'reactAppCount', operator: 'in', value: ['5_10', '11_plus'] }
@@ -38,6 +42,8 @@ export const scaleInteractionRules = [
     label: 'Enterprise support with broad rollout',
     intent: 'Recommend enterprise packaging when support expectations meet wide adoption.',
     reason: 'Broad rollout paired with enterprise support expectations strongly favors enterprise packaging.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'supportExpectation',

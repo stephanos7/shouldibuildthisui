@@ -11,6 +11,7 @@ const fixturePolicy: Policy = {
       label: 'Simple prototype',
       intent: 'Short-circuit a low-risk internal prototype.',
       reason: 'The input represents a narrow internal prototype with low support needs.',
+      editable: false,
       recommendation: 'build_it_yourself',
       conditions: [
         { field: 'ownershipHorizon', operator: 'equals', value: 'prototype' },
@@ -24,6 +25,8 @@ const fixturePolicy: Policy = {
       label: 'Advanced grid needs',
       intent: 'Recognize advanced grid requirements.',
       reason: 'Advanced grid requirements make premium data grid capabilities more valuable.',
+      enabled: true,
+      editable: true,
       conditions: [{ field: 'dataGridComplexity', operator: 'equals', value: 'advanced_grids' }],
       scores: {
         mui_x_premium: 2
@@ -34,6 +37,8 @@ const fixturePolicy: Policy = {
       label: 'Cross-app standardization',
       intent: 'Reward shared standards across apps.',
       reason: 'Cross-app consistency increases the value of a shared component foundation.',
+      enabled: true,
+      editable: true,
       conditions: [
         {
           field: 'standardizationIntent',
@@ -51,6 +56,8 @@ const fixturePolicy: Policy = {
       label: 'Enterprise support demand',
       intent: 'Capture higher support requirements.',
       reason: 'Enterprise support requirements increase the value of enterprise packaging.',
+      enabled: true,
+      editable: true,
       conditions: [
         {
           field: 'supportExpectation',
@@ -69,6 +76,8 @@ const fixturePolicy: Policy = {
       label: 'Advanced grids at scale',
       intent: 'Combine advanced data grid needs with broader adoption.',
       reason: 'Advanced grids used across several teams push the recommendation toward premium.',
+      enabled: true,
+      editable: true,
       conditions: [
         { field: 'dataGridComplexity', operator: 'equals', value: 'advanced_grids' },
         { field: 'teamCount', operator: 'in', value: ['4_7', '8_plus'] }
@@ -82,6 +91,8 @@ const fixturePolicy: Policy = {
       label: 'Scaled governance needs',
       intent: 'Capture broader organizational governance pressure.',
       reason: 'Multiple teams and enterprise support needs increase the value of stronger governance.',
+      enabled: true,
+      editable: true,
       conditions: [
         { field: 'teamCount', operator: 'in', value: ['4_7', '8_plus'] },
         {

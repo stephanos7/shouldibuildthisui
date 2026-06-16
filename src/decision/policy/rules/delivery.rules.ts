@@ -6,6 +6,8 @@ export const deliveryInteractionRules = [
     label: 'Enterprise support with customer-facing rollout',
     intent: 'Identify delivery contexts where enterprise support matters during broader user exposure.',
     reason: 'Customer-facing rollout combined with enterprise support expectations increases the value of enterprise packaging.',
+    enabled: true,
+    editable: true,
     conditions: [
       {
         field: 'supportExpectation',
