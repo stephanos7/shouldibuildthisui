@@ -45,7 +45,7 @@ describe('KeyFactorsSection', () => {
     renderKeyFactorsSection([buildRule(1, 2)]);
 
     expect(screen.getByText(/factor 1/i)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /view/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /show/i })).not.toBeInTheDocument();
   });
 
   it('renders three factors without an accordion', () => {
@@ -54,7 +54,7 @@ describe('KeyFactorsSection', () => {
     expect(screen.getByText(/factor 1/i)).toBeInTheDocument();
     expect(screen.getByText(/factor 2/i)).toBeInTheDocument();
     expect(screen.getByText(/factor 3/i)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /view/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /show/i })).not.toBeInTheDocument();
   });
 
   it('renders the top three factors inline and a disclosure for four factors', () => {
@@ -71,9 +71,7 @@ describe('KeyFactorsSection', () => {
     expect(within(topList).getByText(/factor 3/i)).toBeInTheDocument();
     expect(within(topList).getByText(/factor 4/i)).toBeInTheDocument();
     expect(within(topList).queryByText(/factor 1/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /view all 4 scoring factors/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /show 1 more factor/i })).toBeInTheDocument();
   });
 
   it('renders the top three factors inline and a disclosure for ten factors', () => {
@@ -96,12 +94,10 @@ describe('KeyFactorsSection', () => {
     expect(within(topList).getByText(/factor 9/i)).toBeInTheDocument();
     expect(within(topList).getByText(/factor 8/i)).toBeInTheDocument();
     expect(within(topList).queryByText(/factor 7/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /view all 10 scoring factors/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /show 7 more factors/i })).toBeInTheDocument();
   });
 
-  it('shows all factors after expanding the accordion', () => {
+  it('shows only the hidden factors after expanding the disclosure', () => {
     renderKeyFactorsSection([
       buildRule(1, 1),
       buildRule(2, 4),
@@ -109,13 +105,17 @@ describe('KeyFactorsSection', () => {
       buildRule(4, 2)
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: /view all 4 scoring factors/i }));
+    const button = screen.getByRole('button', { name: /show 1 more factor/i });
+    fireEvent.click(button);
 
-    const fullList = screen.getByRole('list', { name: /all scoring factors/i });
-    expect(within(fullList).getAllByText(/factor 2/i).length).toBeGreaterThan(0);
-    expect(within(fullList).getByText(/factor 1/i)).toBeInTheDocument();
-    expect(within(fullList).getByText(/factor 3/i)).toBeInTheDocument();
-    expect(within(fullList).getByText(/factor 4/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /hide additional factors/i })
+    ).toBeInTheDocument();
+    const additionalList = screen.getByRole('list', { name: /additional scoring factors/i });
+    expect(within(additionalList).getByText(/factor 1/i)).toBeInTheDocument();
+    expect(within(additionalList).queryByText(/factor 2/i)).not.toBeInTheDocument();
+    expect(within(additionalList).queryByText(/factor 3/i)).not.toBeInTheDocument();
+    expect(within(additionalList).queryByText(/factor 4/i)).not.toBeInTheDocument();
   });
 
   it('renders the empty state when no applied rules exist', () => {

@@ -1,36 +1,4 @@
-import type {
-  QuestionDefinition,
-  QuestionnaireFieldId,
-  QuestionnaireSectionDefinition
-} from './questionnaireTypes';
-
-export const questionnaireSections: QuestionnaireSectionDefinition[] = [
-  {
-    id: 'team_and_scale',
-    eyebrow: 'Section 1',
-    title: 'Team and Scale'
-  },
-  {
-    id: 'design_system_and_workflow',
-    eyebrow: 'Section 2',
-    title: 'Design System and Workflow'
-  },
-  {
-    id: 'maintainability_risk',
-    eyebrow: 'Section 3',
-    title: 'Maintainability Risk'
-  },
-  {
-    id: 'advanced_ui_needs',
-    eyebrow: 'Section 4',
-    title: 'Advanced UI Needs'
-  },
-  {
-    id: 'quality_support_and_delivery',
-    eyebrow: 'Section 5',
-    title: 'Quality, Support, and Delivery'
-  }
-];
+import type { QuestionDefinition, QuestionnaireFieldId, QuestionnaireSectionDefinition } from './questionnaireTypes';
 
 export const questions = [
   {
@@ -250,10 +218,42 @@ export const questionIds = questions.map((question) => question.id);
 
 export const totalQuestionCount = questionIds.length;
 
-export const questionsBySection = questionnaireSections.map((section) => ({
-  ...section,
-  questionIds: questions
-    .filter((question) => question.section === section.id)
-    .map((question) => question.id) satisfies QuestionnaireFieldId[],
-  questions: questions.filter((question) => question.section === section.id)
-}));
+const questionsPerSection = 4;
+
+const sectionTitleById = {
+  team_and_scale: 'Team and scale',
+  design_system_and_workflow: 'Design system and workflow',
+  maintainability_risk: 'Maintainability risk',
+  advanced_ui_needs: 'Advanced UI needs',
+  quality_support_and_delivery: 'Quality, support, and delivery'
+} satisfies Record<QuestionDefinition['section'], string>;
+
+function buildSectionDefinition(
+  sectionId: QuestionDefinition['section'],
+  sectionNumber: number,
+  sectionCount: number
+): QuestionnaireSectionDefinition {
+  return {
+    eyebrow: `Section ${sectionNumber} of ${sectionCount}`,
+    title: sectionTitleById[sectionId]
+  };
+}
+
+function buildQuestionSections() {
+  return Array.from({ length: Math.ceil(questions.length / questionsPerSection) }, (_, index) => {
+    const sectionQuestions = questions.slice(
+      index * questionsPerSection,
+      index * questionsPerSection + questionsPerSection
+    );
+
+    return {
+      id: `section_${index + 1}`,
+      label: `Section ${index + 1}`,
+      ...buildSectionDefinition(sectionQuestions[0].section, index + 1, Math.ceil(questions.length / questionsPerSection)),
+      questionIds: sectionQuestions.map((question) => question.id) satisfies QuestionnaireFieldId[],
+      questions: sectionQuestions
+    };
+  });
+}
+
+export const questionsBySection = buildQuestionSections();

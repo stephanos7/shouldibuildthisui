@@ -1,30 +1,34 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
+import { useFormContext } from 'react-hook-form';
+import ResponsiveQuestionRow from './ResponsiveQuestionRow';
 import QuestionRenderer from './QuestionRenderer';
-import type { QuestionDefinition, QuestionnaireSectionDefinition } from './questionnaireTypes';
+import type { QuestionnaireValues } from './questionnaireSchema';
+import type { QuestionDefinition } from './questionnaireTypes';
 
 type QuestionSectionProps = {
-  section: QuestionnaireSectionDefinition;
   questions: QuestionDefinition[];
 };
 
-export default function QuestionSection({ section, questions }: QuestionSectionProps) {
+export default function QuestionSection({ questions }: QuestionSectionProps) {
+  const {
+    formState: { errors }
+  } = useFormContext<QuestionnaireValues>();
+
   return (
-    <Stack spacing={3} sx={{ py: { xs: 0.5, md: 1 } }}>
-      <Box sx={{ pb: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Stack spacing={1}>
-          <Typography variant="overline" color="text.secondary">
-            {section.eyebrow}
-          </Typography>
-          <Typography variant="h4" component="h2">
-            {section.title}
-          </Typography>
-        </Stack>
-      </Box>
-      <Stack spacing={3}>
-        {questions.map((question) => (
-          <QuestionRenderer key={question.id} question={question} />
-        ))}
-      </Stack>
+    <Stack spacing={0} sx={{ py: { xs: 0.5, md: 1 } }}>
+      {questions.map((question) => (
+        <ResponsiveQuestionRow
+          key={question.id}
+          id={question.id}
+          label={question.label}
+        >
+          <QuestionRenderer
+            question={question}
+            labelledById={`${question.id}-question`}
+            describedById={errors[question.id]?.message ? `${question.id}-error` : undefined}
+          />
+        </ResponsiveQuestionRow>
+      ))}
     </Stack>
   );
 }

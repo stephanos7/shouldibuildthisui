@@ -20,9 +20,13 @@ export default function FactorListItem({ factor, density }: FactorListItemProps)
         </CheckCircleOutlineIcon>
       </ListItemIcon>
       <ListItemText
-        primary={<Typography variant="subtitle2">{factor.label}</Typography>}
+        primary={
+          <Typography variant="subtitle2" sx={{ overflowWrap: 'anywhere' }}>
+            {factor.label}
+          </Typography>
+        }
         secondary={
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
             {factor.reason}
           </Typography>
         }

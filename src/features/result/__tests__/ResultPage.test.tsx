@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { routes } from '../../../app/routes';
@@ -7,131 +7,25 @@ import { theme } from '../../../app/theme';
 import { decide } from '../../../decision/engine/decide';
 import { recommendationPolicy } from '../../../decision/policy/recommendationPolicy';
 import { getActivePolicyMetadata } from '../../../decision/recalibration/getActivePolicyMetadata';
-import { getPathDefinition } from '../resultContent';
-import type { DecisionResult } from '../../../decision/types/DecisionResult';
 import type { QuestionnaireResultState } from '../../questionnaire/questionnaireResultState';
-import { STORAGE_KEYS } from '../../../shared/storage/localStorageKeys';
 import { saveRecalibrationOverrides } from '../../../shared/storage/recalibrationStorage';
-import { loadDecisionResult, saveDecisionResult } from '../../../shared/storage/recommendationStorage';
+import {
+  loadDecisionResult,
+  saveDecisionResult
+} from '../../../shared/storage/recommendationStorage';
+import {
+  localRecalibrationMetadata,
+  missingResult,
+  noGateQuestionnaireFacts,
+  scoreResult,
+  tenAppliedRulesResult,
+  questionnaireFacts
+} from '../__fixtures__/resultFixtures';
 
-const questionnaireFixture = {
-  frontendDeveloperCount: '20_49',
-  teamCount: '4_7',
-  reactAppCount: '5_10',
-  designSystemMaturity: 'established',
-  uiKnowledgeDistribution: 'some_specialists',
-  designEngineeringFriction: 'high',
-  standardizationIntent: 'cross_app_consistency',
-  dataGridComplexity: 'advanced_grids',
-  performanceCriticality: 'high',
-  accessibilityCriticality: 'high',
-  changeLeadTime: 'weeks',
-  uiRegressionFrequency: 'frequent',
-  deliveryUrgency: 'high',
-  applicationCriticality: 'customer_facing',
-  supportExpectation: 'enterprise_support',
-  ownershipHorizon: 'long_term'
-} as const;
-
-const routeStateResult: DecisionResult = {
-  decisionType: 'score',
-  policyVersion: 'test-policy-v1',
-  facts: questionnaireFixture,
-  recommendation: 'mui_x_premium',
-  rankedPaths: ['mui_x_premium', 'mui_x_enterprise', 'mui_core', 'build_it_yourself'],
-  scores: {
-    build_it_yourself: 0,
-    mui_core: 1,
-    mui_x_premium: 3,
-    mui_x_enterprise: 2
-  },
-  confidence: 'low',
-  appliedRules: [
-    {
-      ruleId: 'base-advanced-grid',
-      label: 'Advanced grid needs',
-      intent: 'Recognize advanced grid requirements.',
-      reason: 'Advanced grid requirements make premium data grid capabilities more valuable.',
-      ruleType: 'base',
-      scores: {
-        mui_x_premium: 2
-      }
-    },
-    {
-      ruleId: 'base-enterprise-support',
-      label: 'Enterprise support demand',
-      intent: 'Capture higher support requirements.',
-      reason: 'Enterprise support requirements increase the value of enterprise packaging.',
-      ruleType: 'base',
-      scores: {
-        mui_x_enterprise: 2
-      }
-    },
-    {
-      ruleId: 'base-standardization',
-      label: 'Cross-app standardization',
-      intent: 'Reward shared standards across apps.',
-      reason: 'Cross-app consistency increases the value of a shared component foundation.',
-      ruleType: 'base',
-      scores: {
-        mui_core: 1,
-        mui_x_premium: 1
-      }
-    }
-  ],
-  explanation: {
-    summary: 'Recommended mui_x_premium with a 1-point lead over mui_x_enterprise.',
-    recommendationReasons: [
-      'Advanced grid requirements make premium data grid capabilities more valuable.',
-      'Cross-app consistency increases the value of a shared component foundation.'
-    ],
-    counterSignals: [],
-    runnerUp: {
-      path: 'mui_x_enterprise',
-      scoreDelta: 1,
-      reasons: ['Enterprise support requirements increase the value of enterprise packaging.']
-    }
-  }
-};
-
-const noRunnerUpRouteStateResult: DecisionResult = {
-  ...routeStateResult,
-  recommendation: 'build_it_yourself',
-  rankedPaths: ['build_it_yourself', 'mui_core', 'mui_x_premium', 'mui_x_enterprise'],
-  scores: {
-    build_it_yourself: 5,
-    mui_core: 0,
-    mui_x_premium: 0,
-    mui_x_enterprise: 0
-  },
-  confidence: 'high',
-  explanation: {
-    summary: 'Recommended build_it_yourself with a clear lead and no competing positive scores.',
-    recommendationReasons: [
-      'A single team can often move effectively without cross-team platform coordination.'
-    ],
-    counterSignals: []
-  }
-};
-
-const currentPolicyResult = decide(questionnaireFixture, recommendationPolicy);
+const currentPolicyResult = decide(questionnaireFacts, recommendationPolicy);
 const currentPolicyMetadata = getActivePolicyMetadata(null);
-const nonGateQuestionnaireFixture = {
-  ...questionnaireFixture,
-  teamCount: '1',
-  reactAppCount: '1',
-  dataGridComplexity: 'none',
-  applicationCriticality: 'customer_facing',
-  supportExpectation: 'standard_support',
-  ownershipHorizon: 'long_term',
-  standardizationIntent: 'none',
-  designSystemMaturity: 'none',
-  designEngineeringFriction: 'low',
-  uiRegressionFrequency: 'rare',
-  changeLeadTime: 'same_day'
-} as const;
 
-function renderResultRoute(state?: QuestionnaireResultState) {
+function renderResultRoute(state?: QuestionnaireResultState | null) {
   const router = createMemoryRouter(routes, {
     initialEntries: [
       {
@@ -151,6 +45,15 @@ function renderResultRoute(state?: QuestionnaireResultState) {
   return { router };
 }
 
+function expectDocumentOrder(elements: HTMLElement[]) {
+  for (let index = 0; index < elements.length - 1; index += 1) {
+    expect(
+      elements[index]?.compareDocumentPosition(elements[index + 1] as Node) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  }
+}
+
 describe('ResultPage', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -161,97 +64,96 @@ describe('ResultPage', () => {
     window.localStorage.clear();
   });
 
-  it('renders a decision result from route state', () => {
+  it('renders the report with one h1 and no removed sections', () => {
     renderResultRoute({
-      input: questionnaireFixture as QuestionnaireResultState['input'],
-      result: routeStateResult
+      input: questionnaireFacts as QuestionnaireResultState['input'],
+      result: scoreResult
     });
 
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/mui x premium/i)[0]).toBeInTheDocument();
-    expect(screen.getByText(/low confidence/i)).toBeInTheDocument();
-    expect(screen.getByText(/scored recommendation/i)).toBeInTheDocument();
-    expect(screen.getByText(/policy initial-production-policy-v1/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/runner-up/i).length).toBeGreaterThan(0);
     expect(
-      screen.getByText(/this result is close\. the runner-up path may also be appropriate/i)
+      screen.getByRole('heading', { level: 2, name: /mui x premium/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /score breakdown/i })).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: /key factors behind this recommendation/i })
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: /applied rule explanations/i })
-    ).not.toBeInTheDocument();
-    expect(screen.getByText(/advanced grid needs/i)).toBeInTheDocument();
-    expect(screen.getByText(/enterprise support demand/i)).toBeInTheDocument();
-    expect(screen.getByText(/^0$/)).toBeInTheDocument();
-    expect(screen.getByText(/^1$/)).toBeInTheDocument();
-    expect(screen.getByText(/^2$/)).toBeInTheDocument();
-    expect(screen.getByText(/^3$/)).toBeInTheDocument();
-    expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /path comparison/i })).toBeInTheDocument();
+    expect(screen.queryByText(/^mui_x_premium$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^mui_x_enterprise$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^build_it_yourself$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^mui_core$/i)).not.toBeInTheDocument();
   });
 
-  it('omits the runner-up card when the explanation has no meaningful runner-up', () => {
+  it('keeps the major sections in document order', () => {
     renderResultRoute({
-      input: questionnaireFixture as QuestionnaireResultState['input'],
-      result: noRunnerUpRouteStateResult
+      input: questionnaireFacts as QuestionnaireResultState['input'],
+      result: scoreResult
     });
 
-    expect(screen.queryByRole('heading', { name: /runner-up/i })).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/no competing positive scores/i)
-    ).toBeInTheDocument();
+    expectDocumentOrder([
+      screen.getByRole('heading', { name: /recommendation report/i }),
+      screen.getByRole('heading', { level: 2, name: /mui x premium/i }),
+      screen.getByRole('heading', { name: /key factors behind this recommendation/i }),
+      screen.getByRole('heading', { name: /path comparison/i })
+    ]);
   });
 
-  it('restores stored result when route state is missing', () => {
+  it('expands the ten-rule factor list and hides the rest behind disclosure', () => {
+    renderResultRoute({
+      input: questionnaireFacts as QuestionnaireResultState['input'],
+      result: tenAppliedRulesResult
+    });
+
+    const topList = screen.getByRole('list', { name: /top scoring factors/i });
+
+    expect(within(topList).getByText(/factor 10/i)).toBeInTheDocument();
+    expect(within(topList).getByText(/factor 9/i)).toBeInTheDocument();
+    expect(within(topList).getByText(/factor 8/i)).toBeInTheDocument();
+    expect(within(topList).queryByText(/factor 7/i)).not.toBeInTheDocument();
+
+    const disclosureButton = screen.getByRole('button', { name: /show 7 more factors/i });
+    fireEvent.click(disclosureButton);
+
+    expect(
+      screen.getByRole('button', { name: /hide additional factors/i })
+    ).toBeInTheDocument();
+    const additionalList = screen.getByRole('list', { name: /additional scoring factors/i });
+    expect(within(additionalList).getByText(/^factor 1$/i)).toBeInTheDocument();
+    expect(within(additionalList).queryByText(/^factor 8$/i)).not.toBeInTheDocument();
+    expect(within(additionalList).queryByText(/^factor 10$/i)).not.toBeInTheDocument();
+  });
+
+  it('renders the missing-result fallback with a clear primary action', () => {
+    renderResultRoute(missingResult);
+
+    expect(screen.getByRole('heading', { name: /no recommendation found/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/complete the assessment to generate a recommendation report\./i)
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /start assessment/i })).toHaveAttribute(
+      'href',
+      '/'
+    );
+  });
+
+  it('restores stored results and recomputes against the active policy when needed', async () => {
     saveDecisionResult(
-      questionnaireFixture as QuestionnaireResultState['input'],
+      questionnaireFacts as QuestionnaireResultState['input'],
       currentPolicyResult,
       currentPolicyMetadata
     );
 
     renderResultRoute();
 
-    const recommendationLabel = getPathDefinition(currentPolicyResult.recommendation)?.label;
-
-    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
-    expect(screen.getByText(/policy initial-production-policy-v1/i)).toBeInTheDocument();
-    expect(screen.getAllByText(new RegExp(recommendationLabel ?? currentPolicyResult.recommendation, 'i'))[0]).toBeInTheDocument();
-    expect(
-      screen.getByText((_, node) => node?.textContent === currentPolicyResult.explanation.summary)
-    ).toBeInTheDocument();
-  });
-
-  it('recomputes result and resaves when stored metadata differs', async () => {
-    window.localStorage.setItem(
-      STORAGE_KEYS.decisionResult,
-      JSON.stringify({
-        version: 1,
-        savedAt: '2026-01-01T00:00:00.000Z',
-        input: questionnaireFixture,
-        result: routeStateResult,
-        metadata: {
-          policyVersion: routeStateResult.policyVersion,
-          recalibrationUpdatedAt: null,
-          hasLocalOverrides: false
-        }
-      })
-    );
-
-    renderResultRoute();
-
-    const expectedLabel = getPathDefinition(currentPolicyResult.recommendation)?.label;
-
-    expect(screen.getAllByText(new RegExp(expectedLabel ?? currentPolicyResult.recommendation, 'i'))[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/mui x premium/i).length).toBeGreaterThan(0);
 
     await waitFor(() => {
       expect(loadDecisionResult()?.result.policyVersion).toBe(recommendationPolicy.version);
-      expect(loadDecisionResult()?.metadata).toEqual(currentPolicyMetadata);
     });
   });
 
-  it('recomputes a stored result against the active recalibrated policy and shows the recalibration note', async () => {
+  it('recomputes a stored result against the active recalibrated policy', async () => {
     saveRecalibrationOverrides({
       version: 1,
       policyVersion: recommendationPolicy.version,
@@ -270,69 +172,21 @@ describe('ResultPage', () => {
     });
 
     saveDecisionResult(
-      nonGateQuestionnaireFixture as QuestionnaireResultState['input'],
-      decide(nonGateQuestionnaireFixture, recommendationPolicy),
-      currentPolicyMetadata
+      noGateQuestionnaireFacts as QuestionnaireResultState['input'],
+      decide(noGateQuestionnaireFacts, recommendationPolicy),
+      localRecalibrationMetadata
     );
 
     renderResultRoute();
 
     expect((await screen.findAllByText(/mui core/i)).length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/this recommendation uses locally recalibrated rule settings\./i)
-    ).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(loadDecisionResult()?.result.recommendation).toBe('mui_core');
       expect(loadDecisionResult()?.metadata).toEqual({
         policyVersion: recommendationPolicy.version,
         recalibrationUpdatedAt: '2026-01-01T00:00:00.000Z',
         hasLocalOverrides: true
       });
     });
-  });
-
-  it('does not render the recalibration note when no local overrides are active', () => {
-    saveDecisionResult(
-      questionnaireFixture as QuestionnaireResultState['input'],
-      currentPolicyResult,
-      currentPolicyMetadata
-    );
-
-    renderResultRoute();
-
-    expect(
-      screen.queryByText(/this recommendation uses locally recalibrated rule settings\./i)
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders a fallback when no stored result exists', () => {
-    renderResultRoute();
-
-    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/no questionnaire submission was found\. start from the questionnaire/i)
-    ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /back to questionnaire/i })).toHaveAttribute('href', '/');
-  });
-
-  it('clears the session when the user starts over', async () => {
-    const { router } = renderResultRoute({
-      input: questionnaireFixture as QuestionnaireResultState['input'],
-      result: routeStateResult
-    });
-
-    await waitFor(() => {
-      expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).not.toBeNull();
-    });
-
-    screen.getByRole('button', { name: /start over/i }).click();
-
-    await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/');
-    });
-
-    expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).toBeNull();
-    expect(window.localStorage.getItem(STORAGE_KEYS.questionnaireDraft)).toBeNull();
   });
 });

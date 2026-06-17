@@ -55,32 +55,24 @@ const nonGateQuestionnaireFixture: QuestionnaireValues = {
 };
 
 const sectionAnswerLabels = [
-  [/1-9 developers/i, /1 team/i, /1 application/i],
-  [/no real design system/i, /low friction/i, /no explicit reuse goal/i],
-  [
-    /knowledge is well distributed/i,
-    /usually the same day/i,
-    /rarely/i,
-    /prototype or disposable exploration/i
-  ],
-  [/no meaningful grid requirements/i, /low criticality/i],
+  [/1-9 developers/i, /1 team/i, /1 application/i, /no real design system/i],
+  [/low friction/i, /no explicit reuse goal/i, /knowledge is well distributed/i, /usually the same day/i],
+  [/rarely/i, /prototype or disposable exploration/i, /no meaningful grid requirements/i, /low criticality/i],
   [/low priority/i, /internal tool/i, /self-serve documentation and community/i, /low urgency/i]
 ] as const;
 
 const nonGateSectionAnswerLabels = [
-  [/1-9 developers/i, /1 team/i, /1 application/i],
-  [/no real design system/i, /low friction/i, /no explicit reuse goal/i],
-  [/knowledge is well distributed/i, /usually the same day/i, /rarely/i, /long-term product/i],
-  [/no meaningful grid requirements/i, /low criticality/i],
+  [/1-9 developers/i, /1 team/i, /1 application/i, /no real design system/i],
+  [/low friction/i, /no explicit reuse goal/i, /knowledge is well distributed/i, /usually the same day/i],
+  [/rarely/i, /long-term product/i, /no meaningful grid requirements/i, /low criticality/i],
   [/low priority/i, /customer-facing product/i, /standard support/i, /low urgency/i]
 ] as const;
 
-const sectionTitles = [
-  /team and scale/i,
-  /design system and workflow/i,
-  /maintainability risk/i,
-  /advanced ui needs/i,
-  /quality, support, and delivery/i
+const sectionLabels = [
+  /section 1 of 4/i,
+  /section 2 of 4/i,
+  /section 3 of 4/i,
+  /section 4 of 4/i
 ] as const;
 
 function renderQuestionnaire(initialPath = '/') {
@@ -108,7 +100,7 @@ async function completeQuestionnaire(labelsByStep: readonly (readonly RegExp[])[
 
     if (index < labelsByStep.length - 1) {
       fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-      await screen.findByRole('heading', { name: sectionTitles[index + 1] });
+      await screen.findByText(sectionLabels[index + 1]);
     }
   }
 }
@@ -134,10 +126,25 @@ describe('QuestionnairePage', () => {
   it('renders only the first section initially', () => {
     renderQuestionnaire();
 
-    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /design system and workflow/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/section 1 of 4/i)).toBeInTheDocument();
+    expect(screen.queryByText(/section 2 of 4/i)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(4);
+    expect(
+      screen.getByRole('heading', { name: /how many frontend developers work on these react applications\?/i })
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /get recommendation/i })).not.toBeInTheDocument();
+  });
+
+  it('renders navigation after the question rows', () => {
+    renderQuestionnaire();
+
+    const questionHeading = screen.getByRole('heading', {
+      name: /how many frontend developers work on these react applications\?/i
+    });
+    const continueButton = screen.getByRole('button', { name: /continue/i });
+
+    expect(questionHeading.compareDocumentPosition(continueButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('continue validates only the current section and prevents navigation when invalid', async () => {
@@ -148,8 +155,8 @@ describe('QuestionnairePage', () => {
     expect(
       await screen.findByText(/answer the required questions in this section to continue/i)
     ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /design system and workflow/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/section 1 of 4/i)).toBeInTheDocument();
+    expect(screen.queryByText(/section 2 of 4/i)).not.toBeInTheDocument();
   });
 
   it('moves to the next step after the current section is valid', async () => {
@@ -158,9 +165,7 @@ describe('QuestionnairePage', () => {
     fillCurrentStep(sectionAnswerLabels[0]);
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
-    expect(
-      await screen.findByRole('heading', { name: /design system and workflow/i })
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/section 2 of 4/i)).toBeInTheDocument();
   });
 
   it('returns to the previous step when back is clicked', async () => {
@@ -168,11 +173,11 @@ describe('QuestionnairePage', () => {
 
     fillCurrentStep(sectionAnswerLabels[0]);
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-    await screen.findByRole('heading', { name: /design system and workflow/i });
+    await screen.findByText(/section 2 of 4/i);
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
-    expect(await screen.findByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+    expect(await screen.findByText(/section 1 of 4/i)).toBeInTheDocument();
   });
 
   it('shows get recommendation on the final step as answers are selected', async () => {
@@ -180,23 +185,38 @@ describe('QuestionnairePage', () => {
 
     fillCurrentStep(sectionAnswerLabels[0]);
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-    await screen.findByRole('heading', { name: /design system and workflow/i });
+    await screen.findByText(/section 2 of 4/i);
 
     fillCurrentStep(sectionAnswerLabels[1]);
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-    await screen.findByRole('heading', { name: /maintainability risk/i });
+    await screen.findByText(/section 3 of 4/i);
 
     fillCurrentStep(sectionAnswerLabels[2]);
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-    await screen.findByRole('heading', { name: /advanced ui needs/i });
+    await screen.findByText(/section 4 of 4/i);
 
     fillCurrentStep(sectionAnswerLabels[3]);
-    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-
-    expect(
-      await screen.findByRole('heading', { name: /quality, support, and delivery/i })
-    ).toBeInTheDocument();
+    expect(screen.getByText(/section 4 of 4/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /clear saved answers/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /get recommendation/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
+
+    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+  });
+
+  it('keeps clear saved answers secondary to the main actions on the final step', async () => {
+    renderQuestionnaire();
+    await fillQuestionnaire();
+
+    const backButton = screen.getByRole('button', { name: /back/i });
+    const submitButton = screen.getByRole('button', { name: /get recommendation/i });
+    const clearButton = screen.getByRole('button', { name: /^clear saved answers$/i });
+
+    expect(backButton.compareDocumentPosition(submitButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(backButton.compareDocumentPosition(clearButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(clearButton.compareDocumentPosition(submitButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('restores saved draft and opens on the first incomplete section', () => {
@@ -216,9 +236,11 @@ describe('QuestionnairePage', () => {
 
     renderQuestionnaire();
 
-    expect(screen.getByRole('heading', { name: /design system and workflow/i })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /no real design system/i, checked: true })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /team and scale/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/section 2 of 4/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /how much friction exists between design and engineering\?/i })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/section 1 of 4/i)).not.toBeInTheDocument();
   });
 
   it('persists form values after change and saves the result on submit', async () => {
@@ -304,7 +326,7 @@ describe('QuestionnairePage', () => {
 
     expect(loadDecisionResult()).toBeNull();
     expect(screen.getByText(/saved answers cleared/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+    expect(screen.getByText(/section 1 of 4/i)).toBeInTheDocument();
   });
 
   it('uses the active recalibrated policy on submit', async () => {
@@ -336,9 +358,9 @@ describe('QuestionnairePage', () => {
     expect(storedResult?.input).toEqual(nonGateQuestionnaireFixture);
     expect(storedResult?.result.recommendation).toBe('mui_core');
     expect(storedResult?.metadata).toEqual({
+      hasLocalOverrides: true,
       policyVersion: recommendationPolicy.version,
-      recalibrationUpdatedAt: '2026-01-01T00:00:00.000Z',
-      hasLocalOverrides: true
+      recalibrationUpdatedAt: '2026-01-01T00:00:00.000Z'
     });
     expect(storedResult?.result.explanation.recommendationReasons).toContain(
       'Single-team scope now prefers a reusable shared foundation.'

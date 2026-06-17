@@ -1,4 +1,5 @@
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import type { ReactNode } from 'react';
 
 type StepNavigationProps = {
   isFirstStep: boolean;
@@ -6,6 +7,7 @@ type StepNavigationProps = {
   isSubmitting: boolean;
   onBack: () => void;
   onContinue: () => void;
+  secondaryAction: ReactNode;
 };
 
 export default function StepNavigation({
@@ -13,38 +15,48 @@ export default function StepNavigation({
   isFinalStep,
   isSubmitting,
   onBack,
-  onContinue
+  onContinue,
+  secondaryAction
 }: StepNavigationProps) {
   return (
     <Box
       sx={{
-        position: { xs: 'sticky', md: 'static' },
-        bottom: 0,
-        bgcolor: 'background.paper',
-        py: 2,
-        borderTop: { xs: 1, md: 0 },
-        borderColor: 'divider'
+        display: 'grid',
+        gap: 1.5,
+        pt: { xs: 3, md: 3.5 },
+        mt: { xs: 1, md: 1.5 },
+        borderTop: 1,
+        borderColor: 'divider',
+        alignItems: 'center',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: isFirstStep ? '1fr auto auto' : 'auto 1fr auto'
+        }
       }}
     >
-      <Stack direction="row" spacing={1.5} justifyContent="space-between">
+      {isFirstStep ? <Box sx={{ display: { xs: 'none', md: 'block' } }} /> : (
         <Button
           type="button"
           variant="outlined"
           onClick={onBack}
-          disabled={isFirstStep || isSubmitting}
-          sx={{ visibility: isFirstStep ? 'hidden' : 'visible' }}
+          disabled={isSubmitting}
+          sx={{ width: { xs: '100%', md: 'auto' }, justifySelf: 'start' }}
         >
           Back
         </Button>
-        <Button
-          type={isFinalStep ? 'submit' : 'button'}
-          variant="contained"
-          onClick={isFinalStep ? undefined : onContinue}
-          disabled={isSubmitting}
-        >
-          {isFinalStep ? 'Get recommendation' : 'Continue'}
-        </Button>
-      </Stack>
+      )}
+      <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'center' } }}>
+        {secondaryAction}
+      </Box>
+      <Button
+        type={isFinalStep ? 'submit' : 'button'}
+        variant="contained"
+        onClick={isFinalStep ? undefined : onContinue}
+        disabled={isSubmitting}
+        sx={{ width: { xs: '100%', md: 'auto' }, justifySelf: 'end' }}
+      >
+        {isFinalStep ? 'Get recommendation' : 'Continue'}
+      </Button>
     </Box>
   );
 }

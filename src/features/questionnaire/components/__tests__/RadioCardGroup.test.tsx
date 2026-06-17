@@ -18,12 +18,16 @@ const options = [
 
 type HarnessProps = {
   error?: string;
-  layout?: 'single-column' | 'two-column';
+  columns?: {
+    xs?: 1 | 2;
+    sm?: 1 | 2;
+    md?: 1 | 2;
+  };
 };
 
 function RadioCardGroupHarness({
   error,
-  layout = 'two-column'
+  columns = { xs: 1, sm: 1, md: 2 }
 }: HarnessProps) {
   const [value, setValue] = useState('small');
 
@@ -31,14 +35,15 @@ function RadioCardGroupHarness({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <RadioCardGroup
-        name="team-size"
-        label="How large is the team?"
-        error={error}
-        layout={layout}
-        options={[...options]}
+        id="team-size"
         value={value}
-        onBlur={vi.fn()}
+        options={[...options]}
         onChange={setValue}
+        error={error}
+        labelledById="team-size-question"
+        describedById={error ? 'team-size-error' : undefined}
+        columns={columns}
+        onBlur={vi.fn()}
       />
     </ThemeProvider>
   );
@@ -49,6 +54,26 @@ afterEach(() => {
 });
 
 describe('RadioCardGroup', () => {
+  it('uses the provided row heading as the radio group label', () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <h3 id="team-size-question">How large is the team?</h3>
+        <RadioCardGroup
+          id="team-size"
+          value="small"
+          options={[...options]}
+          onChange={vi.fn()}
+          labelledById="team-size-question"
+          columns={{ xs: 1, sm: 1, md: 2 }}
+          onBlur={vi.fn()}
+        />
+      </ThemeProvider>
+    );
+
+    expect(screen.getByRole('radiogroup')).toHaveAccessibleName(/how large is the team\?/i);
+  });
+
   it('renders the selected radio option as checked', () => {
     render(<RadioCardGroupHarness />);
 
@@ -74,14 +99,29 @@ describe('RadioCardGroup', () => {
   });
 
   it('renders error text', () => {
-    render(<RadioCardGroupHarness error="Select one option." />);
+    render(
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RadioCardGroup
+          id="team-size"
+          value="small"
+          options={[...options]}
+          onChange={vi.fn()}
+          error="Select one option."
+          labelledById="team-size-question"
+          columns={{ xs: 1, sm: 1, md: 2 }}
+          onBlur={vi.fn()}
+        />
+      </ThemeProvider>
+    );
 
+    expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-describedby', 'team-size-error');
     expect(screen.getByText(/select one option/i)).toBeInTheDocument();
   });
 
-  it('applies the stable two-column layout marker when requested', () => {
-    render(<RadioCardGroupHarness layout="two-column" />);
+  it('renders error text below the group', () => {
+    render(<RadioCardGroupHarness error="Select one option." />);
 
-    expect(screen.getByTestId('team-size-options-grid')).toHaveAttribute('data-layout', 'two-column');
+    expect(screen.getByText(/select one option\./i)).toHaveAttribute('id', 'team-size-error');
   });
 });

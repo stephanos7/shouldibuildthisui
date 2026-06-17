@@ -30,7 +30,7 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ minHeight: '100vh' }}>
-      <AppBar position="sticky" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(12px)' }}>
+      <AppBar position="static" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(12px)' }}>
         <Toolbar sx={{ gap: 2, justifyContent: 'space-between' }}>
           <Typography
             variant="h6"
@@ -43,7 +43,7 @@ export default function AppLayout() {
           {isInternalRoute ? <InternalNav /> : <PublicNav hasSavedResult={hasSavedResult} />}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="lg" sx={{ py: 6 }}>
+      <Container maxWidth="lg" component="main" sx={{ py: 0 }}>
         <Outlet />
       </Container>
     </Box>

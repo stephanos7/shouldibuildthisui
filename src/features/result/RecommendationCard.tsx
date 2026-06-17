@@ -1,7 +1,7 @@
 import { Paper, Stack, Typography } from "@mui/material";
 import type { DecisionResult } from "../../decision/types/DecisionResult";
 import ConfidenceBadge from "./ConfidenceBadge";
-import { getPathDefinition } from "./resultContent";
+import { formatPathLabel, getPathDefinition } from "./resultContent";
 
 type RecommendationCardProps = {
   result: DecisionResult;
@@ -28,7 +28,7 @@ export default function RecommendationCard({
             Recommended path
           </Typography>
           <Typography variant="h3" component="h1">
-            {recommendation?.label ?? result.recommendation}
+            {recommendation?.label ?? formatPathLabel(result.recommendation)}
           </Typography>
           <Typography variant="body1" color="text.secondary">
             {recommendation?.summary}

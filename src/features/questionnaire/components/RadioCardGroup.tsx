@@ -2,112 +2,89 @@ import {
   Box,
   FormControl,
   FormHelperText,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Typography
+  RadioGroup
 } from '@mui/material';
-import type { QuestionImportance, QuestionLayout, QuestionOption } from '../questionnaireTypes';
+import type { QuestionOption } from '../questionnaireTypes';
+import RadioOptionCard from './RadioOptionCard';
 
-type RadioCardGroupProps = {
-  name: string;
-  label: string;
-  error?: string;
-  layout?: QuestionLayout;
-  importance?: QuestionImportance;
+export type RadioCardGroupProps = {
+  id: string;
+  value: string;
   options: QuestionOption<string>[];
-  value?: string;
+  onChange: (value: string) => void;
+  error?: string;
+  labelledById: string;
+  columns?: {
+    xs?: 1 | 2;
+    sm?: 1 | 2;
+    md?: 1 | 2;
+  };
+  describedById?: string;
   onBlur(): void;
-  onChange(...args: [string]): void;
 };
 
+const defaultColumns = {
+  xs: 1,
+  sm: 1,
+  md: 2
+} satisfies NonNullable<RadioCardGroupProps['columns']>;
+
+function buildGridTemplateColumns(columns: NonNullable<RadioCardGroupProps['columns']>) {
+  return {
+    xs: columns.xs === 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+    sm: columns.sm === 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr',
+    md: columns.md === 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr'
+  };
+}
+
 export default function RadioCardGroup({
-  name,
-  label,
-  error,
-  layout = 'single-column',
-  importance = 'primary',
-  options,
+  id,
   value,
-  onBlur,
-  onChange
+  options,
+  onChange,
+  error,
+  labelledById,
+  columns = defaultColumns,
+  describedById,
+  onBlur
 }: RadioCardGroupProps) {
-  const labelId = `${name}-label`;
-  const errorId = error ? `${name}-error` : undefined;
+  const helperTextId = error ? describedById ?? `${id}-error` : describedById;
 
   return (
     <FormControl error={Boolean(error)} component="fieldset" fullWidth>
-      <Stack spacing={1.5}>
-        <FormLabel
-          id={labelId}
-          component="legend"
+      <RadioGroup
+        name={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onBlur={onBlur}
+        aria-labelledby={labelledById}
+        aria-describedby={helperTextId}
+      >
+        <Box
+          data-testid={`${id}-options-grid`}
           sx={{
-            color: 'text.primary',
-            typography: importance === 'primary' ? 'h6' : 'subtitle1'
+            display: 'grid',
+            gridTemplateColumns: buildGridTemplateColumns(columns),
+            gap: { xs: 1.5, md: 1.25 }
           }}
         >
-          {label}
-        </FormLabel>
-        <RadioGroup
-          name={name}
-          value={value ?? ''}
-          onChange={(event) => onChange(event.target.value)}
-          onBlur={onBlur}
-          aria-labelledby={labelId}
-        >
-          <Box
-            data-testid={`${name}-options-grid`}
-            data-layout={layout}
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: layout === 'two-column' ? 'repeat(2, minmax(0, 1fr))' : '1fr'
-              },
-              gap: 1.5
-            }}
-          >
-            {options.map((option) => {
-              const selected = value === option.value;
-
-              return (
-                <Box
-                  key={option.value}
-                  component="label"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1.5,
-                    minWidth: 0,
-                    p: 1.25,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: selected ? 'primary.main' : 'divider',
-                    bgcolor: selected ? 'action.selected' : 'background.paper',
-                    transition: 'border-color 160ms ease, background-color 160ms ease',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Radio
-                    checked={selected}
-                    value={option.value}
-                    inputProps={{
-                      'aria-label': option.label
-                    }}
-                  />
-                  <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: selected ? 700 : 600 }}>
-                      {option.label}
-                    </Typography>
-                  </Stack>
-                </Box>
-              );
-            })}
-          </Box>
-        </RadioGroup>
-        {error ? <FormHelperText id={errorId}>{error}</FormHelperText> : null}
-      </Stack>
+          {options.map((option) => {
+            return (
+              <RadioOptionCard
+                key={option.value}
+                groupId={id}
+                option={option}
+                selected={value === option.value}
+              />
+            );
+          })}
+        </Box>
+      </RadioGroup>
+      {error ? (
+        <FormHelperText id={helperTextId} sx={{ mx: 0, mt: 1 }}>
+          {error}
+        </FormHelperText>
+      ) : null}
     </FormControl>
   );
 }

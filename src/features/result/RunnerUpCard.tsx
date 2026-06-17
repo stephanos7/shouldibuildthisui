@@ -1,6 +1,10 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import type { DecisionResult } from '../../decision/types/DecisionResult';
-import { getConfidenceSupportingCopy, getPathDefinition } from './resultContent';
+import {
+  formatPathLabel,
+  getConfidenceSupportingCopy,
+  getPathDefinition
+} from './resultContent';
 
 type RunnerUpCardProps = {
   result: DecisionResult;
@@ -23,12 +27,12 @@ export default function RunnerUpCard({ result }: RunnerUpCardProps) {
         <Typography variant="body2" color="text.secondary">
           {getConfidenceSupportingCopy(result.confidence)}
         </Typography>
-        <Typography variant="h6">{runnerUp?.label ?? runnerUpPath}</Typography>
+        <Typography variant="h6">{runnerUp?.label ?? formatPathLabel(runnerUpPath)}</Typography>
         <Typography variant="body2" color="text.secondary">
           {runnerUp?.summary}
         </Typography>
         <Typography variant="body2">
-          Score: {result.scores[runnerUpPath]}
+          {runnerUp?.label ?? formatPathLabel(runnerUpPath)} score: {result.scores[runnerUpPath]}
         </Typography>
       </Stack>
     </Paper>

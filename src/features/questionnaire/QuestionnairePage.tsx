@@ -1,13 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Alert,
-  Button,
-  Container,
-  FormHelperText,
-  Snackbar,
-  Stack
-} from '@mui/material';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Button, Box, Container, FormHelperText, Snackbar, Stack } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { decide } from '../../decision/engine/decide';
@@ -22,15 +15,20 @@ import {
 import AssessmentHero from './AssessmentHero';
 import ClearSavedAnswersDialog from './ClearSavedAnswersDialog';
 import QuestionSection from './QuestionSection';
-import { questionsBySection } from './questions';
+import { questionsBySection, totalQuestionCount } from './questions';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
 import type { QuestionnaireResultState } from './questionnaireResultState';
+import QuestionnaireProgressHeader from './QuestionnaireProgressHeader';
 import StepNavigation from './StepNavigation';
 
 const emptyQuestionnaireValues = {} as QuestionnaireValues;
 
 function isAnswered(value: unknown) {
   return value !== undefined && value !== null && value !== '';
+}
+
+function getAnsweredCount(values: Partial<QuestionnaireValues> | undefined) {
+  return Object.values(values ?? {}).filter(isAnswered).length;
 }
 
 function getFirstIncompleteSectionIndex(values: Partial<QuestionnaireValues> | null) {
@@ -65,6 +63,7 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
   const watchedValues = useWatch({ control });
   const currentSection = questionsBySection[activeStep];
   const isFinalStep = activeStep === questionsBySection.length - 1;
+  const answeredCount = getAnsweredCount(watchedValues);
 
   useEffect(() => {
     if (!persistenceReadyRef.current) {
@@ -126,7 +125,18 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
           <Alert severity="error">Review the highlighted questions before submitting.</Alert>
         ) : null}
 
-        <QuestionSection section={currentSection} questions={currentSection.questions} />
+        <QuestionnaireProgressHeader
+          sectionIndex={activeStep}
+          sectionCount={questionsBySection.length}
+          sectionTitle={currentSection.title}
+          answeredCount={answeredCount}
+          totalQuestionCount={totalQuestionCount}
+        />
+
+        <QuestionSection
+          sectionIndex={activeStep}
+          questions={currentSection.questions}
+        />
 
         <Stack spacing={1.5}>
           <StepNavigation
@@ -135,15 +145,21 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
             isSubmitting={isSubmitting}
             onBack={handleBack}
             onContinue={handleContinue}
+            secondaryAction={
+              <Button
+                type="button"
+                variant="text"
+                color="inherit"
+                onClick={onRequestClear}
+                sx={{ px: 0, minWidth: 0, textTransform: 'none' }}
+              >
+                Clear saved answers
+              </Button>
+            }
           />
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-            <Button type="button" variant="text" color="inherit" onClick={onRequestClear}>
-              Clear saved answers
-            </Button>
-            {isFinalStep && Object.keys(errors).length > 0 ? (
-              <FormHelperText error>All questions are required.</FormHelperText>
-            ) : null}
-          </Stack>
+          {isFinalStep && Object.keys(errors).length > 0 ? (
+            <FormHelperText error>All questions are required.</FormHelperText>
+          ) : null}
         </Stack>
       </Stack>
     </FormProvider>
@@ -154,25 +170,28 @@ export default function QuestionnairePage() {
   const [formSeed, setFormSeed] = useState(0);
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const [isClearConfirmationVisible, setIsClearConfirmationVisible] = useState(false);
-  const savedDraft = useMemo(() => loadQuestionnaireDraft(), [formSeed]);
+  const [savedDraft, setSavedDraft] = useState(() => loadQuestionnaireDraft());
 
   const handleConfirmClear = () => {
     clearRecommendationSession();
+    setSavedDraft(null);
     setIsClearDialogOpen(false);
     setFormSeed((currentSeed) => currentSeed + 1);
     setIsClearConfirmationVisible(true);
   };
 
   return (
-    <Container maxWidth="md" disableGutters>
-      <Stack spacing={4}>
-        <AssessmentHero />
-        <QuestionnaireForm
-          key={formSeed}
-          savedDraft={savedDraft}
-          onRequestClear={() => setIsClearDialogOpen(true)}
-        />
-      </Stack>
+    <Container maxWidth="lg" disableGutters sx={{ py: { xs: 3, md: 5 } }}>
+      <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto' }}>
+        <Stack spacing={{ xs: 3, md: 4 }}>
+          <AssessmentHero />
+          <QuestionnaireForm
+            key={formSeed}
+            savedDraft={savedDraft}
+            onRequestClear={() => setIsClearDialogOpen(true)}
+          />
+        </Stack>
+      </Box>
       <ClearSavedAnswersDialog
         open={isClearDialogOpen}
         onClose={() => setIsClearDialogOpen(false)}

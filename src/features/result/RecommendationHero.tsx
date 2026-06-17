@@ -4,7 +4,9 @@ import ConfidenceBadge from './ConfidenceBadge';
 import {
   getConfidenceSupportingCopy,
   getLeadSummary,
-  getPathDefinition
+  formatPathLabel,
+  getPathDefinition,
+  formatUserFacingText
 } from './resultContent';
 
 type RecommendationHeroProps = {
@@ -37,7 +39,7 @@ export default function RecommendationHero({ result }: RecommendationHeroProps) 
               Recommended path
             </Typography>
             <Typography variant="h2" component="h2">
-              {recommendation?.label ?? result.recommendation}
+              {recommendation?.label ?? formatPathLabel(result.recommendation)}
             </Typography>
             <Typography variant="body1" color="text.secondary">
               {recommendation?.summary}
@@ -51,13 +53,13 @@ export default function RecommendationHero({ result }: RecommendationHeroProps) 
             <Typography variant="subtitle2" color="text.secondary">
               Executive summary
             </Typography>
-            <Typography variant="body1">{result.explanation.summary}</Typography>
+            <Typography variant="body1">{formatUserFacingText(result.explanation.summary)}</Typography>
             <Typography variant="body2" color="text.secondary">
               {getLeadSummary(result)}
             </Typography>
             {runnerUpPath ? (
               <Typography variant="body2" color="text.secondary">
-                Runner-up: {runnerUp?.label ?? runnerUpPath}.{' '}
+                Runner-up: {runnerUp?.label ?? formatPathLabel(runnerUpPath)}.{' '}
                 {getConfidenceSupportingCopy(result.confidence)}
               </Typography>
             ) : null}
