@@ -65,6 +65,31 @@ export const calibrationScenarios: CalibrationScenario[] = [
     notes: 'A single team with simple UI needs should stay on the lightest path.'
   },
   {
+    id: 'long-term-low-risk-internal-tool',
+    label: 'Long-term low-risk internal tool',
+    input: createFacts({
+      frontendDeveloperCount: '1_9',
+      teamCount: '1',
+      reactAppCount: '1',
+      designSystemMaturity: 'none',
+      uiKnowledgeDistribution: 'distributed',
+      designEngineeringFriction: 'low',
+      standardizationIntent: 'none',
+      dataGridComplexity: 'none',
+      performanceCriticality: 'low',
+      accessibilityCriticality: 'low',
+      changeLeadTime: 'same_day',
+      uiRegressionFrequency: 'rare',
+      deliveryUrgency: 'low',
+      applicationCriticality: 'internal_tool',
+      supportExpectation: 'self_serve',
+      ownershipHorizon: 'long_term'
+    }),
+    expectedRecommendation: 'build_it_yourself',
+    notes:
+      'Long-term but narrowly scoped internal tools should stay score-based while producing several aligned low-risk signals.'
+  },
+  {
     id: 'small-team-advanced-grids',
     label: 'Small team with advanced grids',
     input: createFacts({
@@ -109,7 +134,7 @@ export const calibrationScenarios: CalibrationScenario[] = [
       supportExpectation: 'self_serve'
     }),
     expectedRecommendation: 'mui_x_premium',
-    notes: 'Broad rollout still pushes the current policy toward Premium even when UI complexity stays low.'
+    notes: 'Broad rollout with low-complexity UI should stay on Premium when enterprise support and org-wide governance are absent.'
   },
   {
     id: 'large-frontend-narrow-scope',
@@ -135,7 +160,7 @@ export const calibrationScenarios: CalibrationScenario[] = [
       supportExpectation: 'standard_support'
     }),
     expectedRecommendation: 'mui_x_premium',
-    notes: 'Broad rollout with a large frontend population should strengthen shared-platform recommendations without requiring enterprise support.'
+    notes: 'Broad rollout with a large frontend population should strengthen Premium without drifting to Enterprise when top-tier support is absent.'
   },
   {
     id: 'multi-team-multi-app-enterprise',
@@ -205,8 +230,8 @@ export const calibrationScenarios: CalibrationScenario[] = [
       uiRegressionFrequency: 'frequent',
       changeLeadTime: 'weeks'
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Sustained regression risk and slower change cycles should increase support-oriented options.'
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Sustained regression risk and slower change cycles should default to Premium unless the application context is high-risk.'
   },
   {
     id: 'constant-regressions-long-lead-time',
@@ -215,8 +240,8 @@ export const calibrationScenarios: CalibrationScenario[] = [
       uiRegressionFrequency: 'constant',
       changeLeadTime: 'months'
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'The strongest maintainability risk pattern should recommend Enterprise.'
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Even the strongest maintainability pattern should stay on Premium without additional high-risk application signals.'
   },
   {
     id: 'fixed-deadline-pressure',
@@ -278,6 +303,26 @@ export const calibrationScenarios: CalibrationScenario[] = [
     notes: 'Enterprise support demand plus broader rollout should land on Enterprise.'
   },
   {
+    id: 'enterprise-support-moderate-scale-customer-facing',
+    label: 'Enterprise support at moderate scale for customer-facing work',
+    input: createFacts({
+      supportExpectation: 'enterprise_support',
+      applicationCriticality: 'customer_facing'
+    }),
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Enterprise support demand alone should not push moderate-scale customer-facing work into Enterprise.'
+  },
+  {
+    id: 'enterprise-support-moderate-scale-internal',
+    label: 'Enterprise support at moderate scale for internal work',
+    input: createFacts({
+      supportExpectation: 'enterprise_support',
+      applicationCriticality: 'internal_tool'
+    }),
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Enterprise support demand alone should not push moderate-scale internal work into Enterprise.'
+  },
+  {
     id: 'self-serve-low-complexity',
     label: 'Self-serve support and low complexity',
     input: createFacts({
@@ -300,6 +345,17 @@ export const calibrationScenarios: CalibrationScenario[] = [
     }),
     expectedRecommendation: 'mui_x_enterprise',
     notes: 'A platform-investment horizon plus centralized governance should favor Enterprise.'
+  },
+  {
+    id: 'platform-investment-moderate-scale-no-centralization',
+    label: 'Platform investment without centralized governance',
+    input: createFacts({
+      ownershipHorizon: 'platform_investment',
+      standardizationIntent: 'org_wide_platform',
+      designSystemMaturity: 'early'
+    }),
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Platform investment intent without centralized governance should stay on Premium.'
   },
   {
     id: 'mission-critical-grids',
@@ -339,8 +395,8 @@ export const calibrationScenarios: CalibrationScenario[] = [
       teamCount: '2_3',
       reactAppCount: '2_4'
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Explicit org-wide standardization should lean toward Enterprise even without advanced UI.'
+    expectedRecommendation: 'mui_x_premium',
+    notes: 'Explicit org-wide standardization alone should lean toward Premium unless reinforced by centralized governance or severe friction.'
   },
   {
     id: 'design-engineering-friction',

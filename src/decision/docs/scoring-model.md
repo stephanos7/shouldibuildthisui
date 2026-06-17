@@ -53,14 +53,15 @@ That tie-breaker is deterministic, which keeps tests and audits stable.
 
 ## Runner-up selection
 
-The runner-up is simply `rankedPaths[1]` after sorting.
+`rankedPaths[1]` is still the internal second-place path after sorting, but the explanation layer only surfaces a runner-up when it is meaningful to users.
 
 Two consequences matter:
 
-- the runner-up is always the second-highest path after tie-breaking
-- explanation output only includes runner-up detail when the margin is `0` or `1`
+- tie-breaking still determines the second-ranked path for audits and tests
+- explanation output only includes runner-up detail when the runner-up has a positive score and the margin is `0` or `1`
+- if the winning path is the only path with a positive score, the explanation suppresses the runner-up entirely
 
-Close calls therefore stay visible without cluttering decisive outcomes.
+Close calls therefore stay visible without presenting arbitrary zero-score alternatives as real contenders.
 
 ## Confidence model
 
@@ -78,6 +79,15 @@ Examples:
 - winner `10`, runner-up `4` -> `high`
 
 The engine does not look at absolute score totals for confidence. Only the margin matters.
+
+## Enterprise recommendation posture
+
+The policy is intentionally conservative about `mui_x_enterprise`.
+
+- Enterprise usually requires stacked signals across support, governance, scale, criticality, or mission-critical UI needs.
+- Enterprise support expectations alone should not recommend Enterprise.
+- Org-wide standardization intent alone should not recommend Enterprise.
+- Standalone non-scale Enterprise wins are reserved for clearly regulated or mission-critical cases.
 
 ## Why the model prefers interaction rules
 

@@ -7,7 +7,7 @@ type RunnerUpCardProps = {
 };
 
 export default function RunnerUpCard({ result }: RunnerUpCardProps) {
-  const runnerUpPath = result.rankedPaths[1];
+  const runnerUpPath = result.explanation.runnerUp?.path;
   const runnerUp = runnerUpPath ? getPathDefinition(runnerUpPath) : undefined;
 
   if (!runnerUpPath) {

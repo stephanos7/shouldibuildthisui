@@ -84,6 +84,12 @@ Examples:
 - frequent regressions plus long change lead time
 - mission-critical grids plus enterprise support
 
+Enterprise posture:
+
+- Enterprise usually needs stacked support, governance, scale, or criticality signals.
+- Enterprise support or org-wide intent alone should not usually force Enterprise.
+- Standalone non-scale Enterprise wins should be limited to clearly regulated or mission-critical cases.
+
 ## Confidence
 
 Confidence is based on the score margin between the top two ranked paths:
@@ -101,9 +107,9 @@ The explanation builder uses applied rules only.
 - `summary` states the winning path and margin, or the matching gate.
 - `recommendationReasons` lists positive reasons for the winning path.
 - `counterSignals` lists negative contributions against the winning path if any exist.
-- `runnerUp` is included only when the score margin is `0` or `1`.
+- `runnerUp` is included only when the runner-up has a positive score and the score margin is `0` or `1`.
 
-That means the UI can explain close calls without inventing new heuristics.
+That means the UI can explain close calls without inventing new heuristics or showing arbitrary zero-score alternatives as meaningful contenders.
 
 ## Calibration scenarios
 

@@ -9,12 +9,24 @@ export type QuestionnaireSection =
   | 'advanced_ui_needs'
   | 'quality_support_and_delivery';
 
+export type QuestionnaireSectionDefinition = {
+  id: QuestionnaireSection;
+  eyebrow: string;
+  title: string;
+  description: string;
+};
+
 export type QuestionComponent = 'radio' | 'select';
+
+export type QuestionLayout = 'single-column' | 'two-column';
+
+export type QuestionImportance = 'primary' | 'secondary';
 
 export type QuestionOption<TValue extends string> = {
   value: TValue;
   label: string;
   helperText?: string;
+  description?: string;
 };
 
 export type QuestionDefinition<TValue extends string = string> = {
@@ -23,5 +35,7 @@ export type QuestionDefinition<TValue extends string = string> = {
   label: string;
   helperText: string;
   component: QuestionComponent;
+  layout?: QuestionLayout;
+  importance?: QuestionImportance;
   options: QuestionOption<TValue>[];
 };

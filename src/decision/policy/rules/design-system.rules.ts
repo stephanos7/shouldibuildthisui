@@ -32,7 +32,7 @@ export const designSystemInteractionRules = [
     ],
     scores: {
       mui_x_premium: 1,
-      mui_x_enterprise: 3
+      mui_x_enterprise: 4
     }
   },
   {
@@ -55,7 +55,7 @@ export const designSystemInteractionRules = [
       }
     ],
     scores: {
-      mui_x_enterprise: 4
+      mui_x_enterprise: 5
     }
   }
 ] satisfies ScoredRule[];

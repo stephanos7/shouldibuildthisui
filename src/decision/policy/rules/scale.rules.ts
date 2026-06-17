@@ -2,6 +2,24 @@ import type { ScoredRule } from '../../types/Policy';
 
 export const scaleInteractionRules = [
   {
+    id: 'scale-single-team-single-app-light-scope',
+    label: 'Single team, single app, light scope',
+    intent: 'Reinforce direct implementation when scope stays narrowly local and support needs are minimal.',
+    reason:
+      'A single team and app with no meaningful grid requirements and self-serve support usually fit direct implementation best.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      { field: 'teamCount', operator: 'equals', value: '1' },
+      { field: 'reactAppCount', operator: 'equals', value: '1' },
+      { field: 'dataGridComplexity', operator: 'equals', value: 'none' },
+      { field: 'supportExpectation', operator: 'equals', value: 'self_serve' }
+    ],
+    scores: {
+      build_it_yourself: 2
+    }
+  },
+  {
     id: 'scale-large-frontend-narrow-scope',
     label: 'Large frontend population with narrow scope',
     intent: 'Prevent frontend developer count alone from escalating recommendations when scope stays local.',
@@ -70,6 +88,33 @@ export const scaleInteractionRules = [
     scores: {
       mui_x_premium: 2,
       mui_x_enterprise: 2
+    }
+  },
+  {
+    id: 'scale-broad-rollout-low-complexity-premium-guardrail',
+    label: 'Broad rollout with low complexity',
+    intent: 'Keep large low-complexity estates on Premium when enterprise support, compliance, or org-wide governance are not present.',
+    reason:
+      'Broad rollout with low-complexity UI needs usually fits Premium better than Enterprise when top-tier support and org-wide governance are absent.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      { field: 'teamCount', operator: 'in', value: ['4_7', '8_plus'] },
+      { field: 'reactAppCount', operator: 'in', value: ['5_10', '11_plus'] },
+      { field: 'dataGridComplexity', operator: 'in', value: ['none', 'simple_tables'] },
+      {
+        field: 'supportExpectation',
+        operator: 'in',
+        value: ['self_serve', 'standard_support', 'priority_support']
+      },
+      {
+        field: 'standardizationIntent',
+        operator: 'in',
+        value: ['none', 'local_consistency', 'cross_app_consistency']
+      }
+    ],
+    scores: {
+      mui_x_premium: 2
     }
   },
   {

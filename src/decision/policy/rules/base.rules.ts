@@ -99,8 +99,8 @@ export const baseRules = [
       }
     ],
     scores: {
-      mui_x_premium: 1,
-      mui_x_enterprise: 2
+      mui_x_premium: 2,
+      mui_x_enterprise: 1
     }
   },
   {
@@ -170,8 +170,7 @@ export const baseRules = [
       }
     ],
     scores: {
-      mui_x_premium: 1,
-      mui_x_enterprise: 2
+      mui_x_enterprise: 3
     }
   },
   {
@@ -245,7 +244,7 @@ export const baseRules = [
       }
     ],
     scores: {
-      mui_x_enterprise: 2
+      mui_x_premium: 1
     }
   },
   {

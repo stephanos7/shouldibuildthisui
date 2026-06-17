@@ -6,6 +6,7 @@ import { STORAGE_KEYS } from './localStorageKeys';
 import { safeReadJson, safeRemoveItem, safeWriteJson } from './localStorageSafe';
 
 const storageVersion = 1 as const;
+export const RECOMMENDATION_STORAGE_EVENT = 'recommendation-storage-changed';
 
 const pathSchema = z.enum(['build_it_yourself', 'mui_core', 'mui_x_premium', 'mui_x_enterprise']);
 const confidenceSchema = z.enum(['low', 'medium', 'high']);
@@ -89,6 +90,7 @@ export function saveQuestionnaireDraft(values: QuestionnaireValues): void {
     savedAt: new Date().toISOString(),
     values
   } satisfies StoredQuestionnaireDraft);
+  window.dispatchEvent(new Event(RECOMMENDATION_STORAGE_EVENT));
 }
 
 export function loadQuestionnaireDraft(): QuestionnaireValues | null {
@@ -103,6 +105,7 @@ export function loadQuestionnaireDraft(): QuestionnaireValues | null {
 
 export function clearQuestionnaireDraft(): void {
   safeRemoveItem(STORAGE_KEYS.questionnaireDraft);
+  window.dispatchEvent(new Event(RECOMMENDATION_STORAGE_EVENT));
 }
 
 export function saveDecisionResult(
@@ -117,6 +120,7 @@ export function saveDecisionResult(
     result,
     metadata
   } satisfies StoredDecisionResult);
+  window.dispatchEvent(new Event(RECOMMENDATION_STORAGE_EVENT));
 }
 
 export function loadDecisionResult(): StoredDecisionResult | null {
@@ -125,6 +129,7 @@ export function loadDecisionResult(): StoredDecisionResult | null {
 
 export function clearDecisionResult(): void {
   safeRemoveItem(STORAGE_KEYS.decisionResult);
+  window.dispatchEvent(new Event(RECOMMENDATION_STORAGE_EVENT));
 }
 
 export function clearRecommendationSession(): void {

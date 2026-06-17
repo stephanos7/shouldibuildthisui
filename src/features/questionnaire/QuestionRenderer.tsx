@@ -41,6 +41,8 @@ export default function QuestionRenderer({ question }: QuestionRendererProps) {
             label={question.label}
             helperText={question.helperText}
             error={fieldError?.message}
+            layout={question.layout}
+            importance={question.importance}
             options={question.options}
             value={field.value}
             onBlur={field.onBlur}

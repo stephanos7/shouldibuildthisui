@@ -1,14 +1,19 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { routes } from '../../../app/routes';
 import { theme } from '../../../app/theme';
+import { decide } from '../../../decision/engine/decide';
 import { recommendationPolicy } from '../../../decision/policy/recommendationPolicy';
 import { getActivePolicyMetadata } from '../../../decision/recalibration/getActivePolicyMetadata';
 import { STORAGE_KEYS } from '../../../shared/storage/localStorageKeys';
 import { saveRecalibrationOverrides } from '../../../shared/storage/recalibrationStorage';
-import { loadDecisionResult, loadQuestionnaireDraft } from '../../../shared/storage/recommendationStorage';
+import {
+  loadDecisionResult,
+  loadQuestionnaireDraft,
+  saveDecisionResult
+} from '../../../shared/storage/recommendationStorage';
 import type { QuestionnaireValues } from '../questionnaireSchema';
 
 const questionnaireFixture: QuestionnaireValues = {
@@ -30,25 +35,6 @@ const questionnaireFixture: QuestionnaireValues = {
   ownershipHorizon: 'prototype'
 };
 
-const answerLabels = [
-  /1-9 developers/i,
-  /1 team/i,
-  /1 application/i,
-  /no real design system/i,
-  /low friction/i,
-  /no explicit standardization goal/i,
-  /well distributed across contributors/i,
-  /usually the same day/i,
-  /rarely/i,
-  /prototype or disposable exploration/i,
-  /no meaningful grid requirements/i,
-  /low criticality/i,
-  /low priority/i,
-  /internal tool/i,
-  /self-serve documentation and community/i,
-  /low urgency/i
-];
-
 const nonGateQuestionnaireFixture: QuestionnaireValues = {
   frontendDeveloperCount: '1_9',
   teamCount: '1',
@@ -68,50 +54,71 @@ const nonGateQuestionnaireFixture: QuestionnaireValues = {
   ownershipHorizon: 'long_term'
 };
 
-const nonGateAnswerLabels = [
-  /1-9 developers/i,
-  /1 team/i,
-  /1 application/i,
-  /no real design system/i,
-  /low friction/i,
-  /no explicit standardization goal/i,
-  /well distributed across contributors/i,
-  /usually the same day/i,
-  /rarely/i,
-  /long-term product/i,
-  /no meaningful grid requirements/i,
-  /low criticality/i,
-  /low priority/i,
-  /customer-facing product/i,
-  /standard support/i,
-  /low urgency/i
-];
+const sectionAnswerLabels = [
+  [/1-9 developers/i, /1 team/i, /1 application/i],
+  [/no real design system/i, /low friction/i, /no explicit standardization goal/i],
+  [
+    /well distributed across contributors/i,
+    /usually the same day/i,
+    /rarely/i,
+    /prototype or disposable exploration/i
+  ],
+  [/no meaningful grid requirements/i, /low criticality/i],
+  [/low priority/i, /internal tool/i, /self-serve documentation and community/i, /low urgency/i]
+] as const;
+
+const nonGateSectionAnswerLabels = [
+  [/1-9 developers/i, /1 team/i, /1 application/i],
+  [/no real design system/i, /low friction/i, /no explicit standardization goal/i],
+  [/well distributed across contributors/i, /usually the same day/i, /rarely/i, /long-term product/i],
+  [/no meaningful grid requirements/i, /low criticality/i],
+  [/low priority/i, /customer-facing product/i, /standard support/i, /low urgency/i]
+] as const;
+
+const sectionTitles = [
+  /team and scale/i,
+  /design system and workflow/i,
+  /maintainability risk/i,
+  /advanced ui needs/i,
+  /quality, support, and delivery/i
+] as const;
 
 function renderQuestionnaire(initialPath = '/') {
   const router = createMemoryRouter(routes, {
     initialEntries: [initialPath]
   });
 
-  render(
+  return render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <RouterProvider router={router} />
     </ThemeProvider>
   );
-
-  return { router };
 }
 
-function fillQuestionnaire() {
-  for (const label of answerLabels) {
-    fireEvent.click(screen.getAllByRole('radio', { name: label })[0]);
+function fillCurrentStep(labels: readonly RegExp[]) {
+  for (const label of labels) {
+    fireEvent.click(screen.getByRole('radio', { name: label }));
   }
 }
 
-function fillNonGateQuestionnaire() {
-  for (const label of nonGateAnswerLabels) {
-    fireEvent.click(screen.getAllByRole('radio', { name: label })[0]);
+async function completeQuestionnaire(labelsByStep: readonly (readonly RegExp[])[]) {
+  for (const [index, labels] of labelsByStep.entries()) {
+    fillCurrentStep(labels);
+
+    if (index < labelsByStep.length - 1) {
+      fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+      await screen.findByRole('heading', { name: sectionTitles[index + 1] });
+    }
   }
+}
+
+async function fillQuestionnaire() {
+  await completeQuestionnaire(sectionAnswerLabels);
+}
+
+async function fillNonGateQuestionnaire() {
+  await completeQuestionnaire(nonGateSectionAnswerLabels);
 }
 
 describe('QuestionnairePage', () => {
@@ -120,38 +127,119 @@ describe('QuestionnairePage', () => {
   });
 
   afterEach(() => {
+    cleanup();
     window.localStorage.clear();
   });
 
-  it('restores saved draft into form defaults', () => {
+  it('renders only the first section initially', () => {
+    renderQuestionnaire();
+
+    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /design system and workflow/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/0 of 16 answered/i)).toBeInTheDocument();
+    expect(screen.getByText(/step 1 of 5/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /get recommendation/i })).not.toBeInTheDocument();
+  });
+
+  it('continue validates only the current section and prevents navigation when invalid', async () => {
+    renderQuestionnaire();
+
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    expect(
+      await screen.findByText(/answer the required questions in this section to continue/i)
+    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /design system and workflow/i })).not.toBeInTheDocument();
+  });
+
+  it('moves to the next step after the current section is valid', async () => {
+    renderQuestionnaire();
+
+    fillCurrentStep(sectionAnswerLabels[0]);
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    expect(
+      await screen.findByRole('heading', { name: /design system and workflow/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/3 of 16 answered/i)).toBeInTheDocument();
+    expect(screen.getByText(/step 2 of 5/i)).toBeInTheDocument();
+  });
+
+  it('returns to the previous step when back is clicked', async () => {
+    renderQuestionnaire();
+
+    fillCurrentStep(sectionAnswerLabels[0]);
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await screen.findByRole('heading', { name: /design system and workflow/i });
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(await screen.findByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+  });
+
+  it('shows get recommendation on the final step and updates progress as answers are selected', async () => {
+    renderQuestionnaire();
+
+    fillCurrentStep(sectionAnswerLabels[0]);
+    expect(screen.getByText(/3 of 16 answered/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await screen.findByRole('heading', { name: /design system and workflow/i });
+
+    fillCurrentStep(sectionAnswerLabels[1]);
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await screen.findByRole('heading', { name: /maintainability risk/i });
+
+    fillCurrentStep(sectionAnswerLabels[2]);
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    await screen.findByRole('heading', { name: /advanced ui needs/i });
+
+    fillCurrentStep(sectionAnswerLabels[3]);
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    expect(
+      await screen.findByRole('heading', { name: /quality, support, and delivery/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /get recommendation/i })).toBeInTheDocument();
+    expect(screen.getByText(/12 of 16 answered/i)).toBeInTheDocument();
+    expect(screen.getByText(/step 5 of 5/i)).toBeInTheDocument();
+  });
+
+  it('restores saved draft and opens on the first incomplete section', () => {
     window.localStorage.setItem(
       STORAGE_KEYS.questionnaireDraft,
       JSON.stringify({
         version: 1,
         savedAt: '2026-01-01T00:00:00.000Z',
-        values: questionnaireFixture
+        values: {
+          frontendDeveloperCount: '1_9',
+          teamCount: '1',
+          reactAppCount: '1',
+          designSystemMaturity: 'none'
+        }
       })
     );
 
     renderQuestionnaire();
 
-    expect(screen.getByRole('radio', { name: /1-9 developers/i, checked: true })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /1 team/i, checked: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /design system and workflow/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /no real design system/i, checked: true })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /team and scale/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/4 of 16 answered/i)).toBeInTheDocument();
   });
 
   it('persists form values after change and saves the result on submit', async () => {
     renderQuestionnaire();
 
-    fireEvent.click(screen.getAllByRole('radio', { name: /10-19 developers/i })[0]);
+    fireEvent.click(screen.getByRole('radio', { name: /10-19 developers/i }));
 
     await waitFor(() => {
       expect(loadQuestionnaireDraft()?.frontendDeveloperCount).toBe('10_19');
     });
 
-    fillQuestionnaire();
-
-    fireEvent.click(screen.getAllByRole('button', { name: /get recommendation/i })[0]);
+    await fillQuestionnaire();
+    fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
     expect(await screen.findByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
 
@@ -162,11 +250,9 @@ describe('QuestionnairePage', () => {
     expect(storedResult?.input).toEqual(questionnaireFixture);
     expect(storedResult?.result.policyVersion).toBe(recommendationPolicy.version);
     expect(storedResult?.metadata).toEqual(getActivePolicyMetadata(null));
-    expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
-    expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).not.toBeNull();
   });
 
-  it('clears saved answers from storage and the current form, with actions at the top and bottom', async () => {
+  it('opens a confirmation dialog before clearing saved answers and cancel keeps storage intact', async () => {
     window.localStorage.setItem(
       STORAGE_KEYS.questionnaireDraft,
       JSON.stringify({
@@ -178,27 +264,56 @@ describe('QuestionnairePage', () => {
 
     renderQuestionnaire();
 
-    const clearButtons = screen.getAllByRole('button', { name: /clear saved answers/i });
-    const form = clearButtons[0].closest('form');
+    fireEvent.click(screen.getByRole('button', { name: /^clear saved answers$/i }));
 
-    expect(clearButtons.length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByRole('radio', { name: /1-9 developers/i, checked: true })).toBeInTheDocument();
-    expect(form).not.toBeNull();
+    const dialog = screen.getByRole('dialog');
+    expect(
+      within(dialog).getByText(/this will remove your saved questionnaire answers/i)
+    ).toBeInTheDocument();
 
-    fireEvent.click(clearButtons[0]);
+    fireEvent.click(within(dialog).getByRole('button', { name: /cancel/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    expect(loadQuestionnaireDraft()).toEqual(questionnaireFixture);
+  });
+
+  it('clears saved draft and result after confirmation and resets the first step', async () => {
+    saveDecisionResult(
+      questionnaireFixture,
+      decide(questionnaireFixture, recommendationPolicy),
+      getActivePolicyMetadata()
+    );
+    window.localStorage.setItem(
+      STORAGE_KEYS.questionnaireDraft,
+      JSON.stringify({
+        version: 1,
+        savedAt: '2026-01-01T00:00:00.000Z',
+        values: questionnaireFixture
+      })
+    );
+
+    renderQuestionnaire();
+
+    fireEvent.click(screen.getByRole('button', { name: /^clear saved answers$/i }));
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: /^clear saved answers$/i })
+    );
 
     await waitFor(() => {
       expect(loadQuestionnaireDraft()).toBeNull();
     });
 
-    expect(
-      within(form as HTMLFormElement).queryByRole('radio', { name: /1-9 developers/i, checked: true })
-    ).not.toBeInTheDocument();
-    expect(
-      within(form as HTMLFormElement).queryByRole('radio', { name: /1 team/i, checked: true })
-    ).not.toBeInTheDocument();
-    expect(window.localStorage.getItem(STORAGE_KEYS.questionnaireDraft)).toBeNull();
-    expect(window.localStorage.getItem(STORAGE_KEYS.decisionResult)).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    expect(loadDecisionResult()).toBeNull();
+    expect(screen.getByText(/saved answers cleared/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
+    expect(screen.getByText(/0 of 16 answered/i)).toBeInTheDocument();
   });
 
   it('uses the active recalibrated policy on submit', async () => {
@@ -220,9 +335,8 @@ describe('QuestionnairePage', () => {
     });
 
     renderQuestionnaire();
-    fillNonGateQuestionnaire();
-
-    fireEvent.click(screen.getAllByRole('button', { name: /get recommendation/i })[0]);
+    await fillNonGateQuestionnaire();
+    fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
     expect(await screen.findByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
 

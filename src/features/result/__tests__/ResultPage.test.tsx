@@ -94,6 +94,26 @@ const routeStateResult: DecisionResult = {
   }
 };
 
+const noRunnerUpRouteStateResult: DecisionResult = {
+  ...routeStateResult,
+  recommendation: 'build_it_yourself',
+  rankedPaths: ['build_it_yourself', 'mui_core', 'mui_x_premium', 'mui_x_enterprise'],
+  scores: {
+    build_it_yourself: 5,
+    mui_core: 0,
+    mui_x_premium: 0,
+    mui_x_enterprise: 0
+  },
+  confidence: 'high',
+  explanation: {
+    summary: 'Recommended build_it_yourself with a clear lead and no competing positive scores.',
+    recommendationReasons: [
+      'A single team can often move effectively without cross-team platform coordination.'
+    ],
+    counterSignals: []
+  }
+};
+
 const currentPolicyResult = decide(questionnaireFixture, recommendationPolicy);
 const currentPolicyMetadata = getActivePolicyMetadata(null);
 const nonGateQuestionnaireFixture = {
@@ -165,6 +185,18 @@ describe('ResultPage', () => {
     expect(screen.getByText(/^2$/)).toBeInTheDocument();
     expect(screen.getByText(/^3$/)).toBeInTheDocument();
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+  });
+
+  it('omits the runner-up card when the explanation has no meaningful runner-up', () => {
+    renderResultRoute({
+      input: questionnaireFixture as QuestionnaireResultState['input'],
+      result: noRunnerUpRouteStateResult
+    });
+
+    expect(screen.queryByRole('heading', { name: /runner-up/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/no competing positive scores/i)
+    ).toBeInTheDocument();
   });
 
   it('restores stored result when route state is missing', () => {

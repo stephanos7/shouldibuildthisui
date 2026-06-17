@@ -1,5 +1,9 @@
-import type { AppliedRule, DecisionExplanation, DecisionResult } from '../types/DecisionResult';
-import type { Path } from '../types/Path';
+import type {
+  AppliedRule,
+  DecisionExplanation,
+  DecisionResult
+} from "../types/DecisionResult";
+import type { Path } from "../types/Path";
 
 function getPathDelta(rule: AppliedRule, path: Path): number {
   return rule.scores?.[path] ?? 0;
@@ -8,24 +12,41 @@ function getPathDelta(rule: AppliedRule, path: Path): number {
 function collectRulesForPath(
   appliedRules: AppliedRule[],
   path: Path,
-  direction: 'positive' | 'negative'
+  direction: "positive" | "negative"
 ): AppliedRule[] {
   return appliedRules.filter((rule) => {
     const delta = getPathDelta(rule, path);
-    return direction === 'positive' ? delta > 0 : delta < 0;
+    return direction === "positive" ? delta > 0 : delta < 0;
   });
 }
 
+function shouldIncludeRunnerUp(
+  recommendation: Path,
+  runnerUp: Path | undefined,
+  scores: Record<Path, number>
+): runnerUp is Path {
+  if (!runnerUp) {
+    return false;
+  }
+
+  if (scores[runnerUp] > 0) {
+    return true;
+  }
+
+  return scores[recommendation] <= 0;
+}
+
 export function buildExplanation(params: {
-  decisionType: DecisionResult['decisionType'];
+  decisionType: DecisionResult["decisionType"];
   recommendation: Path;
   rankedPaths: Path[];
   scores: Record<Path, number>;
   appliedRules: AppliedRule[];
 }): DecisionExplanation {
-  const { decisionType, recommendation, rankedPaths, scores, appliedRules } = params;
+  const { decisionType, recommendation, rankedPaths, scores, appliedRules } =
+    params;
 
-  if (decisionType === 'gate') {
+  if (decisionType === "gate") {
     const gateRule = appliedRules[0];
 
     return {
@@ -37,23 +58,41 @@ export function buildExplanation(params: {
     };
   }
 
-  const positiveRules = collectRulesForPath(appliedRules, recommendation, 'positive');
-  const negativeRules = collectRulesForPath(appliedRules, recommendation, 'negative');
+  const positiveRules = collectRulesForPath(
+    appliedRules,
+    recommendation,
+    "positive"
+  );
+  const negativeRules = collectRulesForPath(
+    appliedRules,
+    recommendation,
+    "negative"
+  );
   const runnerUp = rankedPaths[1];
   const margin = scores[recommendation] - scores[runnerUp];
-  const runnerUpPositiveRules = collectRulesForPath(appliedRules, runnerUp, 'positive');
+  const includeRunnerUp = shouldIncludeRunnerUp(
+    recommendation,
+    runnerUp,
+    scores
+  );
+  const runnerUpPositiveRules = includeRunnerUp
+    ? collectRulesForPath(appliedRules, runnerUp, "positive")
+    : [];
 
   return {
-    summary: `Recommended ${recommendation} with a ${margin}-point lead over ${runnerUp}.`,
+    summary: includeRunnerUp
+      ? `Recommended  with a ${margin}-point lead over ${runnerUp}.`
+      : `Recommended  with a clear lead and no competing positive scores.`,
     recommendationReasons: positiveRules.map((rule) => rule.reason),
     counterSignals: negativeRules.map((rule) => rule.reason),
-    runnerUp:
-      margin <= 1
+    runnerUp: includeRunnerUp
+      ? margin <= 1
         ? {
             path: runnerUp,
             scoreDelta: margin,
             reasons: runnerUpPositiveRules.map((rule) => rule.reason)
           }
         : undefined
+      : undefined
   };
 }

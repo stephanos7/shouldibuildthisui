@@ -2,6 +2,23 @@ import type { ScoredRule } from '../../types/Policy';
 
 export const maintainabilityInteractionRules = [
   {
+    id: 'maintainability-low-friction-fast-stable',
+    label: 'Low-friction stable delivery',
+    intent: 'Reward direct implementation when UI change flow is fast, stable, and low-friction.',
+    reason:
+      'Low design friction, same-day UI changes, and rare regressions reduce the need for heavier platform investment.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      { field: 'designEngineeringFriction', operator: 'equals', value: 'low' },
+      { field: 'changeLeadTime', operator: 'equals', value: 'same_day' },
+      { field: 'uiRegressionFrequency', operator: 'equals', value: 'rare' }
+    ],
+    scores: {
+      build_it_yourself: 1
+    }
+  },
+  {
     id: 'maintainability-knowledge-concentration-long-horizon',
     label: 'Concentrated UI knowledge with long ownership horizon',
     intent: 'Push toward stronger standardization when narrow ownership must last.',
@@ -41,8 +58,32 @@ export const maintainabilityInteractionRules = [
       { field: 'changeLeadTime', operator: 'in', value: ['weeks', 'months'] }
     ],
     scores: {
-      mui_x_premium: 2,
-      mui_x_enterprise: 3
+      mui_x_premium: 3
+    }
+  },
+  {
+    id: 'maintainability-frequent-regressions-high-risk-app',
+    label: 'Frequent regressions in a high-risk app',
+    intent: 'Escalate maintainability-driven enterprise recommendations only when delivery problems hit higher-risk applications.',
+    reason:
+      'Frequent regressions and slow UI delivery in revenue-critical or operationally critical applications justify stronger enterprise support.',
+    enabled: true,
+    editable: true,
+    conditions: [
+      {
+        field: 'uiRegressionFrequency',
+        operator: 'in',
+        value: ['frequent', 'constant']
+      },
+      { field: 'changeLeadTime', operator: 'in', value: ['weeks', 'months'] },
+      {
+        field: 'applicationCriticality',
+        operator: 'in',
+        value: ['revenue_critical', 'regulated_or_operationally_critical']
+      }
+    ],
+    scores: {
+      mui_x_enterprise: 4
     }
   }
 ] satisfies ScoredRule[];
