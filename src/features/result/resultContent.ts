@@ -1,4 +1,5 @@
 import { pathDefinitions } from '../../decision/policy/pathDefinitions';
+import type { AppliedRule } from '../../decision/types/DecisionResult';
 import type { DecisionResult } from '../../decision/types/DecisionResult';
 import type { Confidence } from '../../decision/types/DecisionResult';
 import type { Path } from '../../decision/types/Path';
@@ -58,4 +59,53 @@ export function getLeadSummary(result: DecisionResult) {
   return `It leads ${runnerUp?.label ?? result.explanation.runnerUp.path} by ${formatPointDelta(
     leadDelta
   )}.`;
+}
+
+function getRecommendedPathContribution(rule: AppliedRule, recommendation: Path) {
+  return rule.scores?.[recommendation];
+}
+
+function canSortFactorsByContribution(appliedRules: AppliedRule[], recommendation: Path) {
+  if (appliedRules.length === 0) {
+    return false;
+  }
+
+  return appliedRules.every((rule) => {
+    if (!rule.scores) {
+      return false;
+    }
+
+    const contribution = getRecommendedPathContribution(rule, recommendation);
+
+    return typeof contribution === 'number';
+  });
+}
+
+export function sortAppliedRulesForDisplay(appliedRules: AppliedRule[], recommendation: Path) {
+  if (!canSortFactorsByContribution(appliedRules, recommendation)) {
+    return appliedRules;
+  }
+
+  return [...appliedRules].sort((left, right) => {
+    const leftContribution = Math.abs(getRecommendedPathContribution(left, recommendation) ?? 0);
+    const rightContribution = Math.abs(getRecommendedPathContribution(right, recommendation) ?? 0);
+
+    return rightContribution - leftContribution;
+  });
+}
+
+export function getVisibleFactors(appliedRules: AppliedRule[], recommendation: Path) {
+  return sortAppliedRulesForDisplay(appliedRules, recommendation).slice(0, 3);
+}
+
+export function getHiddenFactors(appliedRules: AppliedRule[], recommendation: Path) {
+  return sortAppliedRulesForDisplay(appliedRules, recommendation).slice(3);
+}
+
+export function getViewAllFactorsLabel(factorCount: number) {
+  if (factorCount <= 1) {
+    return 'View scoring factor';
+  }
+
+  return `View all ${factorCount} scoring factors`;
 }

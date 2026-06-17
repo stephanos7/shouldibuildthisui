@@ -177,7 +177,12 @@ describe('ResultPage', () => {
       screen.getByText(/this result is close\. the runner-up path may also be appropriate/i)
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /score breakdown/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /applied rule explanations/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /key factors behind this recommendation/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /applied rule explanations/i })
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/advanced grid needs/i)).toBeInTheDocument();
     expect(screen.getByText(/enterprise support demand/i)).toBeInTheDocument();
     expect(screen.getByText(/^0$/)).toBeInTheDocument();

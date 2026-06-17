@@ -22,12 +22,10 @@ import {
 import AssessmentHero from './AssessmentHero';
 import ClearSavedAnswersDialog from './ClearSavedAnswersDialog';
 import QuestionSection from './QuestionSection';
-import QuestionnaireProgress from './QuestionnaireProgress';
-import { questionIds, questionsBySection, questionnaireSections, totalQuestionCount } from './questions';
+import { questionsBySection } from './questions';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
 import type { QuestionnaireResultState } from './questionnaireResultState';
 import StepNavigation from './StepNavigation';
-import QuestionnaireStepper from './QuestionnaireStepper';
 
 const emptyQuestionnaireValues = {} as QuestionnaireValues;
 
@@ -67,10 +65,6 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
   const watchedValues = useWatch({ control });
   const currentSection = questionsBySection[activeStep];
   const isFinalStep = activeStep === questionsBySection.length - 1;
-  const answeredCount = questionIds.reduce(
-    (count, questionId) => count + (isAnswered(watchedValues?.[questionId]) ? 1 : 0),
-    0
-  );
 
   useEffect(() => {
     if (!persistenceReadyRef.current) {
@@ -124,16 +118,6 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
         aria-label="Recommendation questionnaire"
         sx={{ px: { xs: 2, sm: 3, md: 4, lg: 4 } }}
       >
-        <Stack spacing={2.5}>
-          <QuestionnaireStepper activeStep={activeStep} sections={questionnaireSections} />
-          <QuestionnaireProgress
-            activeStep={activeStep}
-            answeredCount={answeredCount}
-            totalQuestionCount={totalQuestionCount}
-            totalSteps={questionnaireSections.length}
-          />
-        </Stack>
-
         {stepError ? (
           <Alert severity="error">Answer the required questions in this section to continue.</Alert>
         ) : null}

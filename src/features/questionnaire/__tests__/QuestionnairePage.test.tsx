@@ -136,8 +136,6 @@ describe('QuestionnairePage', () => {
 
     expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /design system and workflow/i })).not.toBeInTheDocument();
-    expect(screen.getByText(/0 of 16 answered/i)).toBeInTheDocument();
-    expect(screen.getByText(/step 1 of 5/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /get recommendation/i })).not.toBeInTheDocument();
   });
@@ -163,8 +161,6 @@ describe('QuestionnairePage', () => {
     expect(
       await screen.findByRole('heading', { name: /design system and workflow/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/3 of 16 answered/i)).toBeInTheDocument();
-    expect(screen.getByText(/step 2 of 5/i)).toBeInTheDocument();
   });
 
   it('returns to the previous step when back is clicked', async () => {
@@ -179,11 +175,10 @@ describe('QuestionnairePage', () => {
     expect(await screen.findByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
   });
 
-  it('shows get recommendation on the final step and updates progress as answers are selected', async () => {
+  it('shows get recommendation on the final step as answers are selected', async () => {
     renderQuestionnaire();
 
     fillCurrentStep(sectionAnswerLabels[0]);
-    expect(screen.getByText(/3 of 16 answered/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
     await screen.findByRole('heading', { name: /design system and workflow/i });
 
@@ -202,8 +197,6 @@ describe('QuestionnairePage', () => {
       await screen.findByRole('heading', { name: /quality, support, and delivery/i })
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /get recommendation/i })).toBeInTheDocument();
-    expect(screen.getByText(/12 of 16 answered/i)).toBeInTheDocument();
-    expect(screen.getByText(/step 5 of 5/i)).toBeInTheDocument();
   });
 
   it('restores saved draft and opens on the first incomplete section', () => {
@@ -226,7 +219,6 @@ describe('QuestionnairePage', () => {
     expect(screen.getByRole('heading', { name: /design system and workflow/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /no real design system/i, checked: true })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /team and scale/i })).not.toBeInTheDocument();
-    expect(screen.getByText(/4 of 16 answered/i)).toBeInTheDocument();
   });
 
   it('persists form values after change and saves the result on submit', async () => {
@@ -313,7 +305,6 @@ describe('QuestionnairePage', () => {
     expect(loadDecisionResult()).toBeNull();
     expect(screen.getByText(/saved answers cleared/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /team and scale/i })).toBeInTheDocument();
-    expect(screen.getByText(/0 of 16 answered/i)).toBeInTheDocument();
   });
 
   it('uses the active recalibrated policy on submit', async () => {

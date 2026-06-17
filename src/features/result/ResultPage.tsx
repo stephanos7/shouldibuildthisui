@@ -9,7 +9,7 @@ import {
 } from '../../decision/recalibration/getActivePolicyMetadata';
 import { clearRecommendationSession, loadDecisionResult, saveDecisionResult } from '../../shared/storage/recommendationStorage';
 import type { QuestionnaireResultState } from '../questionnaire/questionnaireResultState';
-import ExplanationList from './ExplanationList';
+import KeyFactorsSection from './KeyFactorsSection';
 import RecommendationHero from './RecommendationHero';
 import ReportMetricTile from './ReportMetricTile';
 import ResultReportHeader from './ResultReportHeader';
@@ -146,7 +146,10 @@ export default function ResultPage({ state }: ResultPageProps) {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={7}>
-          <ExplanationList result={resolvedResult.result} />
+          <KeyFactorsSection
+            appliedRules={resolvedResult.result.appliedRules}
+            recommendation={resolvedResult.result.recommendation}
+          />
         </Grid>
         <Grid item xs={12} md={5}>
           <ScoreBreakdown result={resolvedResult.result} />

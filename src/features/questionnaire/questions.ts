@@ -8,34 +8,27 @@ export const questionnaireSections: QuestionnaireSectionDefinition[] = [
   {
     id: 'team_and_scale',
     eyebrow: 'Section 1',
-    title: 'Team and Scale',
-    description: 'Understand how many people, teams, and apps would rely on the same UI approach.'
+    title: 'Team and Scale'
   },
   {
     id: 'design_system_and_workflow',
     eyebrow: 'Section 2',
-    title: 'Design System and Workflow',
-    description: 'Describe the current design system state and how widely the UI should be reused.'
+    title: 'Design System and Workflow'
   },
   {
     id: 'maintainability_risk',
     eyebrow: 'Section 3',
-    title: 'Maintainability Risk',
-    description:
-      'Look at knowledge concentration, delivery friction, and how long this UI needs to last.'
+    title: 'Maintainability Risk'
   },
   {
     id: 'advanced_ui_needs',
     eyebrow: 'Section 4',
-    title: 'Advanced UI Needs',
-    description: 'Capture the hardest data-heavy and performance-sensitive requirements in scope.'
+    title: 'Advanced UI Needs'
   },
   {
     id: 'quality_support_and_delivery',
     eyebrow: 'Section 5',
-    title: 'Quality, Support, and Delivery',
-    description:
-      'Account for accessibility expectations, operational risk, support needs, and urgency.'
+    title: 'Quality, Support, and Delivery'
   }
 ];
 
