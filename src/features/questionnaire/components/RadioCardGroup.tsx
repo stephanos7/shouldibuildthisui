@@ -13,7 +13,6 @@ import type { QuestionImportance, QuestionLayout, QuestionOption } from '../ques
 type RadioCardGroupProps = {
   name: string;
   label: string;
-  helperText?: string;
   error?: string;
   layout?: QuestionLayout;
   importance?: QuestionImportance;
@@ -26,7 +25,6 @@ type RadioCardGroupProps = {
 export default function RadioCardGroup({
   name,
   label,
-  helperText,
   error,
   layout = 'single-column',
   importance = 'primary',
@@ -36,9 +34,7 @@ export default function RadioCardGroup({
   onChange
 }: RadioCardGroupProps) {
   const labelId = `${name}-label`;
-  const helperTextId = helperText ? `${name}-helper-text` : undefined;
   const errorId = error ? `${name}-error` : undefined;
-  const descriptionIds = [helperTextId, errorId].filter(Boolean).join(' ') || undefined;
 
   return (
     <FormControl error={Boolean(error)} component="fieldset" fullWidth>
@@ -53,18 +49,12 @@ export default function RadioCardGroup({
         >
           {label}
         </FormLabel>
-        {helperText ? (
-          <FormHelperText id={helperTextId} sx={{ ml: 0, mt: 0 }}>
-            {helperText}
-          </FormHelperText>
-        ) : null}
         <RadioGroup
           name={name}
           value={value ?? ''}
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
           aria-labelledby={labelId}
-          aria-describedby={descriptionIds}
         >
           <Box
             data-testid={`${name}-options-grid`}
@@ -103,19 +93,13 @@ export default function RadioCardGroup({
                     checked={selected}
                     value={option.value}
                     inputProps={{
-                      'aria-label': option.label,
-                      'aria-describedby': descriptionIds
+                      'aria-label': option.label
                     }}
                   />
                   <Stack spacing={0.25} sx={{ minWidth: 0 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: selected ? 700 : 600 }}>
                       {option.label}
                     </Typography>
-                    {option.description ?? option.helperText ? (
-                      <Typography variant="body2" color="text.secondary">
-                        {option.description ?? option.helperText}
-                      </Typography>
-                    ) : null}
                   </Stack>
                 </Box>
               );

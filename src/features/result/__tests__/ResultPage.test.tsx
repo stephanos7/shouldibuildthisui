@@ -167,12 +167,12 @@ describe('ResultPage', () => {
       result: routeStateResult
     });
 
-    expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
     expect(screen.getAllByText(/mui x premium/i)[0]).toBeInTheDocument();
     expect(screen.getByText(/low confidence/i)).toBeInTheDocument();
-    expect(screen.getByText(/gate recommendation|scored recommendation/i)).toBeInTheDocument();
-    expect(screen.getByText(/policy test-policy-v1/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /runner-up/i })).toBeInTheDocument();
+    expect(screen.getByText(/scored recommendation/i)).toBeInTheDocument();
+    expect(screen.getByText(/policy initial-production-policy-v1/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/runner-up/i).length).toBeGreaterThan(0);
     expect(
       screen.getByText(/this result is close\. the runner-up path may also be appropriate/i)
     ).toBeInTheDocument();
@@ -210,10 +210,12 @@ describe('ResultPage', () => {
 
     const recommendationLabel = getPathDefinition(currentPolicyResult.recommendation)?.label;
 
-    expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
-    expect(screen.getByText(/current policy version: initial-production-policy-v1/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(screen.getByText(/policy initial-production-policy-v1/i)).toBeInTheDocument();
     expect(screen.getAllByText(new RegExp(recommendationLabel ?? currentPolicyResult.recommendation, 'i'))[0]).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(currentPolicyResult.explanation.summary, 'i'))).toBeInTheDocument();
+    expect(
+      screen.getByText((_, node) => node?.textContent === currentPolicyResult.explanation.summary)
+    ).toBeInTheDocument();
   });
 
   it('recomputes result and resaves when stored metadata differs', async () => {
@@ -302,7 +304,7 @@ describe('ResultPage', () => {
   it('renders a fallback when no stored result exists', () => {
     renderResultRoute();
 
-    expect(screen.getByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
     expect(
       screen.getByText(/no questionnaire submission was found\. start from the questionnaire/i)
     ).toBeInTheDocument();

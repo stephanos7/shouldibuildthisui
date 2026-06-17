@@ -122,8 +122,9 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
         noValidate
         onSubmit={handleSubmit(onSubmit, () => setStepError(false))}
         aria-label="Recommendation questionnaire"
+        sx={{ px: { xs: 2, sm: 3, md: 4, lg: 4 } }}
       >
-        <Stack spacing={2.5} sx={{ px: { xs: 0, md: 0.5 } }}>
+        <Stack spacing={2.5}>
           <QuestionnaireStepper activeStep={activeStep} sections={questionnaireSections} />
           <QuestionnaireProgress
             activeStep={activeStep}

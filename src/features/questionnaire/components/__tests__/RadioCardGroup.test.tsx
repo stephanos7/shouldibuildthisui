@@ -8,25 +8,21 @@ import RadioCardGroup from '../RadioCardGroup';
 const options = [
   {
     value: 'small',
-    label: 'Small team',
-    description: 'A compact team with limited UI specialization.'
+    label: 'Small team'
   },
   {
     value: 'large',
-    label: 'Large team',
-    description: 'A larger team with more coordination overhead.'
+    label: 'Large team'
   }
 ] as const;
 
 type HarnessProps = {
   error?: string;
-  helperText?: string;
   layout?: 'single-column' | 'two-column';
 };
 
 function RadioCardGroupHarness({
   error,
-  helperText = 'Choose the option that best matches your team.',
   layout = 'two-column'
 }: HarnessProps) {
   const [value, setValue] = useState('small');
@@ -37,7 +33,6 @@ function RadioCardGroupHarness({
       <RadioCardGroup
         name="team-size"
         label="How large is the team?"
-        helperText={helperText}
         error={error}
         layout={layout}
         options={[...options]}
@@ -78,15 +73,9 @@ describe('RadioCardGroup', () => {
     expect(screen.getByRole('radio', { name: /large team/i })).toBeChecked();
   });
 
-  it('renders helper text and error text', () => {
-    render(
-      <RadioCardGroupHarness
-        error="Select one option."
-        helperText="This answer shapes the recommendation."
-      />
-    );
+  it('renders error text', () => {
+    render(<RadioCardGroupHarness error="Select one option." />);
 
-    expect(screen.getByText(/this answer shapes the recommendation/i)).toBeInTheDocument();
     expect(screen.getByText(/select one option/i)).toBeInTheDocument();
   });
 

@@ -1,4 +1,4 @@
-import { Button, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Grid, Paper, Stack, Typography } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { decide } from '../../decision/engine/decide';
@@ -10,9 +10,12 @@ import {
 import { clearRecommendationSession, loadDecisionResult, saveDecisionResult } from '../../shared/storage/recommendationStorage';
 import type { QuestionnaireResultState } from '../questionnaire/questionnaireResultState';
 import ExplanationList from './ExplanationList';
-import RecommendationCard from './RecommendationCard';
-import RunnerUpCard from './RunnerUpCard';
+import RecommendationHero from './RecommendationHero';
+import ReportMetricTile from './ReportMetricTile';
+import ResultReportHeader from './ResultReportHeader';
+import ResultReportShell from './ResultReportShell';
 import ScoreBreakdown from './ScoreBreakdown';
+import { formatConfidenceLabel, getLeadDelta, getPathDefinition } from './resultContent';
 
 type ResultPageProps = {
   state: QuestionnaireResultState | null;
@@ -72,56 +75,83 @@ export default function ResultPage({ state }: ResultPageProps) {
 
   if (!resolvedResult) {
     return (
-      <Paper variant="outlined" sx={{ p: 4, maxWidth: 720 }}>
-        <Stack spacing={2}>
-          <Typography variant="h4" component="h1">
-            Recommendation result
-          </Typography>
-          <Typography color="text.secondary">
-            No questionnaire submission was found. Start from the questionnaire to generate a result.
-          </Typography>
-          <Button component={RouterLink} to="/" variant="contained" sx={{ alignSelf: 'flex-start' }}>
-            Back to questionnaire
-          </Button>
-        </Stack>
-      </Paper>
+      <ResultReportShell>
+        <Paper variant="outlined" sx={{ p: 4, maxWidth: 720 }}>
+          <Stack spacing={2}>
+            <Typography variant="h4" component="h1">
+              Recommendation report
+            </Typography>
+            <Typography color="text.secondary">
+              No questionnaire submission was found. Start from the questionnaire to generate a
+              result.
+            </Typography>
+            <Typography
+              component={RouterLink}
+              to="/"
+              sx={{
+                alignSelf: 'flex-start',
+                color: 'primary.main',
+                fontWeight: 600,
+                textDecoration: 'none'
+              }}
+            >
+              Back to questionnaire
+            </Typography>
+          </Stack>
+        </Paper>
+      </ResultReportShell>
     );
   }
 
+  const runnerUpPath = resolvedResult.result.explanation.runnerUp?.path;
+  const runnerUp = runnerUpPath ? getPathDefinition(runnerUpPath) : undefined;
+  const leadDelta = getLeadDelta(resolvedResult.result);
+
   return (
-    <Stack spacing={3.5}>
-      <Stack spacing={1}>
-        <Typography variant="body2" color="text.secondary">
-          Current policy version: {activePolicy.version}
-        </Typography>
-        <Typography variant="h4" component="h1">
-          Recommendation result
-        </Typography>
-        <Typography color="text.secondary">
-          Review the recommendation, confidence, applied rules, and full score breakdown.
-        </Typography>
-        {resolvedResult.metadata.hasLocalOverrides ? (
-          <Typography variant="body2" color="text.secondary">
-            This recommendation uses locally recalibrated rule settings.
-          </Typography>
-        ) : null}
-        <Button type="button" variant="text" onClick={handleStartOver} sx={{ alignSelf: 'flex-start' }}>
-          Start over
-        </Button>
-      </Stack>
-      <RecommendationCard result={resolvedResult.result} />
+    <ResultReportShell>
+      <ResultReportHeader
+        policyVersion={activePolicy.version}
+        decisionType={resolvedResult.result.decisionType}
+        hasLocalOverrides={resolvedResult.metadata.hasLocalOverrides}
+        onStartOver={handleStartOver}
+      />
+      <RecommendationHero result={resolvedResult.result} />
+
+      <Grid container spacing={2}>
+        <Grid item xs={6} md={3}>
+          <ReportMetricTile
+            label="Confidence"
+            value={formatConfidenceLabel(resolvedResult.result.confidence)}
+          />
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <ReportMetricTile
+            label="Score lead"
+            value={leadDelta > 0 ? `${leadDelta} point${leadDelta === 1 ? '' : 's'}` : 'Tied'}
+          />
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <ReportMetricTile
+            label="Runner-up"
+            value={runnerUp?.label ?? 'None'}
+            description={
+              runnerUpPath ? `Score ${resolvedResult.result.scores[runnerUpPath]}` : 'No close alternative'
+            }
+          />
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <ReportMetricTile label="Policy version" value={activePolicy.version} />
+        </Grid>
+      </Grid>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={5}>
-          <RunnerUpCard result={resolvedResult.result} />
-        </Grid>
         <Grid item xs={12} md={7}>
           <ExplanationList result={resolvedResult.result} />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={5}>
           <ScoreBreakdown result={resolvedResult.result} />
         </Grid>
       </Grid>
-    </Stack>
+    </ResultReportShell>
   );
 }

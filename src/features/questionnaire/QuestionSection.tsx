@@ -18,7 +18,6 @@ export default function QuestionSection({ section, questions }: QuestionSectionP
           <Typography variant="h4" component="h2">
             {section.title}
           </Typography>
-          <Typography color="text.secondary">{section.description}</Typography>
         </Stack>
       </Box>
       <Stack spacing={3}>

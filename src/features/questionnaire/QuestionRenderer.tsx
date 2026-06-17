@@ -25,7 +25,6 @@ export default function QuestionRenderer({ question }: QuestionRendererProps) {
           return (
             <SelectQuestion
               label={question.label}
-              helperText={question.helperText}
               error={fieldError?.message}
               options={question.options}
               value={field.value}
@@ -39,7 +38,6 @@ export default function QuestionRenderer({ question }: QuestionRendererProps) {
           <RadioCardGroup
             name={field.name}
             label={question.label}
-            helperText={question.helperText}
             error={fieldError?.message}
             layout={question.layout}
             importance={question.importance}

@@ -56,9 +56,9 @@ const nonGateQuestionnaireFixture: QuestionnaireValues = {
 
 const sectionAnswerLabels = [
   [/1-9 developers/i, /1 team/i, /1 application/i],
-  [/no real design system/i, /low friction/i, /no explicit standardization goal/i],
+  [/no real design system/i, /low friction/i, /no explicit reuse goal/i],
   [
-    /well distributed across contributors/i,
+    /knowledge is well distributed/i,
     /usually the same day/i,
     /rarely/i,
     /prototype or disposable exploration/i
@@ -69,8 +69,8 @@ const sectionAnswerLabels = [
 
 const nonGateSectionAnswerLabels = [
   [/1-9 developers/i, /1 team/i, /1 application/i],
-  [/no real design system/i, /low friction/i, /no explicit standardization goal/i],
-  [/well distributed across contributors/i, /usually the same day/i, /rarely/i, /long-term product/i],
+  [/no real design system/i, /low friction/i, /no explicit reuse goal/i],
+  [/knowledge is well distributed/i, /usually the same day/i, /rarely/i, /long-term product/i],
   [/no meaningful grid requirements/i, /low criticality/i],
   [/low priority/i, /customer-facing product/i, /standard support/i, /low urgency/i]
 ] as const;
@@ -241,7 +241,7 @@ describe('QuestionnairePage', () => {
     await fillQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
 
     const storedDraft = loadQuestionnaireDraft();
     const storedResult = loadDecisionResult();
@@ -338,7 +338,7 @@ describe('QuestionnairePage', () => {
     await fillNonGateQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /recommendation result/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
 
     const storedResult = loadDecisionResult();
 
