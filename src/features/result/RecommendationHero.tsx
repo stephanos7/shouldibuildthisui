@@ -37,9 +37,18 @@ export default function RecommendationHero({
           alignItems={{ lg: "center" }}
         >
           <Stack spacing={1.25} sx={{ minWidth: 0 }}>
-            <Typography variant="overline" color="text.secondary">
-              Recommended path
-            </Typography>
+            <Stack
+              direction="row"
+              spacing={1}
+              useFlexGap
+              flexWrap="wrap"
+              alignItems="center"
+            >
+              <Typography variant="overline" color="text.secondary">
+                Recommended path
+              </Typography>
+              <ConfidenceBadge confidence={result.confidence} />
+            </Stack>
             <Typography
               variant="h2"
               component="h2"
@@ -57,15 +66,21 @@ export default function RecommendationHero({
             >
               {recommendation?.summary}
             </Typography>
-            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-              <ConfidenceBadge confidence={result.confidence} />
-            </Stack>
           </Stack>
 
           <Stack spacing={1.25} sx={{ minWidth: 0, maxWidth: { lg: 520 } }}>
-            <Typography variant="subtitle2" color="text.secondary">
+                      <Stack spacing={1.25} sx={{ minWidth: 0 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              useFlexGap
+              flexWrap="wrap"
+              alignItems="center"
+            >
+            <Typography variant="overline" color="text.secondary">
               Executive summary
             </Typography>
+            </Stack>
             <Typography variant="body1">
               {formatUserFacingText(result.explanation.summary)}
             </Typography>
