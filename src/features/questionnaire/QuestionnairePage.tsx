@@ -8,11 +8,13 @@ import { getActiveRecommendationPolicy } from '../../decision/policy/recommendat
 import { getActivePolicyMetadata } from '../../decision/recalibration/getActivePolicyMetadata';
 import {
   clearRecommendationSession,
+  loadDecisionResult,
   loadQuestionnaireDraft,
+  RECOMMENDATION_STORAGE_EVENT,
   saveDecisionResult,
   saveQuestionnaireDraft
 } from '../../shared/storage/recommendationStorage';
-import AssessmentHero from './AssessmentHero';
+import HomeHero from '../home/HomeHero';
 import ClearSavedAnswersDialog from './ClearSavedAnswersDialog';
 import QuestionSection from './QuestionSection';
 import { questionsBySection } from './questions';
@@ -178,7 +180,23 @@ export default function QuestionnairePage() {
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const [isClearConfirmationVisible, setIsClearConfirmationVisible] = useState(false);
   const [savedDraft, setSavedDraft] = useState(() => loadQuestionnaireDraft());
+  const [hasSavedResult, setHasSavedResult] = useState(() => loadDecisionResult() !== null);
   const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    const syncSavedResult = () => {
+      setHasSavedResult(loadDecisionResult() !== null);
+    };
+
+    syncSavedResult();
+    window.addEventListener(RECOMMENDATION_STORAGE_EVENT, syncSavedResult);
+    window.addEventListener('storage', syncSavedResult);
+
+    return () => {
+      window.removeEventListener(RECOMMENDATION_STORAGE_EVENT, syncSavedResult);
+      window.removeEventListener('storage', syncSavedResult);
+    };
+  }, []);
 
   const handleConfirmClear = () => {
     clearRecommendationSession();
@@ -220,8 +238,9 @@ export default function QuestionnairePage() {
             />
           </Paper>
         ) : (
-          <AssessmentHero
+          <HomeHero
             hasSavedDraft={savedDraft !== null}
+            hasSavedResult={hasSavedResult}
             onStart={() => setHasStarted(true)}
           />
         )}

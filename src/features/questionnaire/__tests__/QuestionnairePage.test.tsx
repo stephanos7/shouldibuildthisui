@@ -98,7 +98,7 @@ function renderQuestionnaire(initialPath = '/', options: { start?: boolean } = {
   );
 
   if (options.start !== false && initialPath === '/') {
-    fireEvent.click(screen.getByRole('button', { name: /start questionnaire|continue questionnaire/i }));
+    fireEvent.click(screen.getByRole('button', { name: /start assessment|continue assessment/i }));
   }
 
   return renderResult;
@@ -145,7 +145,7 @@ describe('QuestionnairePage', () => {
     expect(
       screen.getByRole('heading', { name: /find the best path for your react ui/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /start questionnaire/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
     expect(screen.queryByText(/section 1 of 4/i)).not.toBeInTheDocument();
   });
 
@@ -241,7 +241,7 @@ describe('QuestionnairePage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: /build it yourself/i })).toBeInTheDocument();
   });
 
   it('keeps clear saved answers secondary to the main actions on the final step', async () => {
@@ -293,7 +293,9 @@ describe('QuestionnairePage', () => {
     await fillQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 2, name: /build it yourself/i })
+    ).toBeInTheDocument();
 
     const storedDraft = loadQuestionnaireDraft();
     const storedResult = loadDecisionResult();
@@ -389,7 +391,7 @@ describe('QuestionnairePage', () => {
     await fillNonGateQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: /mui core/i })).toBeInTheDocument();
 
     const storedResult = loadDecisionResult();
 

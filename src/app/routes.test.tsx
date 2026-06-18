@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { decide } from '../decision/engine/decide';
@@ -41,6 +41,7 @@ describe('app routes', () => {
   });
 
   afterEach(() => {
+    cleanup();
     window.localStorage.clear();
   });
 
@@ -65,7 +66,7 @@ describe('app routes', () => {
     );
     renderRoute('/result');
 
-    expect(screen.getByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /build it yourself/i })).toBeInTheDocument();
   });
 
   it('renders the calibration route', () => {

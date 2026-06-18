@@ -70,15 +70,14 @@ describe('ResultPage', () => {
       result: scoreResult
     });
 
-    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /mui x premium/i })
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(3);
+    expect(screen.getByRole('heading', { level: 2, name: /mui x premium/i })).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: /key factors behind this recommendation/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /path comparison/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /path comparison/i })
+    ).toBeInTheDocument();
     expect(screen.queryByText(/^mui_x_premium$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^mui_x_enterprise$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^build_it_yourself$/i)).not.toBeInTheDocument();
@@ -92,7 +91,6 @@ describe('ResultPage', () => {
     });
 
     expectDocumentOrder([
-      screen.getByRole('heading', { name: /your recommendation/i }),
       screen.getByRole('heading', { level: 2, name: /mui x premium/i }),
       screen.getByRole('heading', { name: /key factors behind this recommendation/i }),
       screen.getByRole('heading', { name: /path comparison/i })
