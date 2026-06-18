@@ -1,4 +1,4 @@
-import { Grid, Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import type { ReactNode } from 'react';
 
 type ResultReportLayoutProps = {
@@ -19,14 +19,21 @@ export default function ResultReportLayout({
       {reportHeader}
       {recommendationHero}
 
-      <Grid container spacing={{ xs: 4, md: 6 }} alignItems="flex-start">
-        <Grid item xs={12} md={7}>
+      <Box
+        sx={{
+          display: 'grid',
+          gap: { xs: 4, md: 6 },
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 7fr) minmax(0, 5fr)' },
+          alignItems: 'flex-start'
+        }}
+      >
+        <Box>
           <Stack spacing={{ xs: 4, md: 5 }}>{keyFactors}</Stack>
-        </Grid>
-        <Grid item xs={12} md={5}>
+        </Box>
+        <Box>
           <Stack spacing={{ xs: 4, md: 5 }}>{scoreComparison}</Stack>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Stack>
   );
 }

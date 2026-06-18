@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, Box, Container, FormHelperText, Snackbar, Stack } from '@mui/material';
+import { Alert, Button, Box, Container, Snackbar, Stack } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +49,7 @@ type QuestionnaireFormProps = {
 function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProps) {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(() => getFirstIncompleteSectionIndex(savedDraft));
-  const [stepError, setStepError] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const methods = useForm<QuestionnaireValues>({
     resolver: zodResolver(questionnaireSchema),
     mode: 'onBlur',
@@ -58,7 +58,7 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
   const persistenceReadyRef = useRef(false);
   const {
     control,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     handleSubmit,
     trigger
   } = methods;
@@ -77,7 +77,7 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
   }, [watchedValues]);
 
   const handleBack = () => {
-    setStepError(false);
+    setValidationMessage(null);
     setActiveStep((currentStep) => Math.max(currentStep - 1, 0));
   };
 
@@ -85,11 +85,11 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
     const isStepValid = await trigger(currentSection.questionIds);
 
     if (!isStepValid) {
-      setStepError(true);
+      setValidationMessage('Answer the required questions in this section to continue.');
       return;
     }
 
-    setStepError(false);
+    setValidationMessage(null);
     setActiveStep((currentStep) => Math.min(currentStep + 1, questionsBySection.length - 1));
   };
 
@@ -111,56 +111,64 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
 
   return (
     <FormProvider {...methods}>
-      <Stack
-        component="form"
-        spacing={3}
-        noValidate
-        onSubmit={handleSubmit(onSubmit, () => setStepError(false))}
-        aria-label="Recommendation questionnaire"
-        sx={{ px: { xs: 2, sm: 3, md: 4, lg: 4 } }}
-      >
-        {stepError ? (
-          <Alert severity="error">Answer the required questions in this section to continue.</Alert>
-        ) : null}
-
-        {isFinalStep && Object.keys(errors).length > 0 ? (
-          <Alert severity="error">Review the highlighted questions before submitting.</Alert>
-        ) : null}
-
-        <QuestionnaireProgressHeader
-          sectionIndex={activeStep}
-          sectionCount={questionsBySection.length}
-          completedSectionIndexes={completedSectionIndexes}
-        />
-
-        <QuestionSection
-          questions={currentSection.questions}
-        />
-
-        <Stack spacing={1.5}>
-          <StepNavigation
-            isFirstStep={activeStep === 0}
-            isFinalStep={isFinalStep}
-            isSubmitting={isSubmitting}
-            onBack={handleBack}
-            onContinue={handleContinue}
-            secondaryAction={
-              <Button
-                type="button"
-                variant="text"
-                color="inherit"
-                onClick={onRequestClear}
-                sx={{ px: 0, minWidth: 0, textTransform: 'none' }}
-              >
-                Clear saved answers
-              </Button>
-            }
+      <>
+        <Stack
+          component="form"
+          spacing={3}
+          noValidate
+          onSubmit={handleSubmit(onSubmit, () => {
+            setValidationMessage('Review the highlighted questions before submitting.');
+          })}
+          aria-label="Recommendation questionnaire"
+          sx={{ width: '100%' }}
+        >
+          <QuestionnaireProgressHeader
+            sectionIndex={activeStep}
+            sectionCount={questionsBySection.length}
+            completedSectionIndexes={completedSectionIndexes}
           />
-          {isFinalStep && Object.keys(errors).length > 0 ? (
-            <FormHelperText error>All questions are required.</FormHelperText>
-          ) : null}
+
+          <QuestionSection
+            questions={currentSection.questions}
+          />
+
+          <Stack spacing={1.5}>
+            <StepNavigation
+              isFirstStep={activeStep === 0}
+              isFinalStep={isFinalStep}
+              isSubmitting={isSubmitting}
+              onBack={handleBack}
+              onContinue={handleContinue}
+              secondaryAction={
+                <Button
+                  type="button"
+                  variant="text"
+                  color="inherit"
+                  onClick={onRequestClear}
+                  sx={{ px: 0, minWidth: 0, textTransform: 'none' }}
+                >
+                  Clear saved answers
+                </Button>
+              }
+            />
+          </Stack>
         </Stack>
-      </Stack>
+        <Snackbar
+          open={validationMessage !== null}
+          autoHideDuration={4000}
+          onClose={() => setValidationMessage(null)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            severity="error"
+            variant="filled"
+            onClose={() => setValidationMessage(null)}
+            sx={{ width: '100%' }}
+          >
+            {validationMessage}
+          </Alert>
+        </Snackbar>
+      </>
     </FormProvider>
   );
 }
@@ -170,6 +178,7 @@ export default function QuestionnairePage() {
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const [isClearConfirmationVisible, setIsClearConfirmationVisible] = useState(false);
   const [savedDraft, setSavedDraft] = useState(() => loadQuestionnaireDraft());
+  const [hasStarted, setHasStarted] = useState(false);
 
   const handleConfirmClear = () => {
     clearRecommendationSession();
@@ -180,16 +189,27 @@ export default function QuestionnairePage() {
   };
 
   return (
-    <Container maxWidth="lg" disableGutters sx={{ py: { xs: 3, md: 5 } }}>
-      <Box sx={{ width: '100%', maxWidth: 1180, mx: 'auto' }}>
-        <Stack spacing={{ xs: 3, md: 4 }}>
-          <AssessmentHero />
+    <Container maxWidth={false} disableGutters sx={{ py: hasStarted ? { xs: 3, md: 5 } : 0 }}>
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: hasStarted ? 1280 : 'none',
+          mx: 'auto',
+          px: hasStarted ? { xs: 2, sm: 3, md: 5 } : 0
+        }}
+      >
+        {hasStarted ? (
           <QuestionnaireForm
             key={formSeed}
             savedDraft={savedDraft}
             onRequestClear={() => setIsClearDialogOpen(true)}
           />
-        </Stack>
+        ) : (
+          <AssessmentHero
+            hasSavedDraft={savedDraft !== null}
+            onStart={() => setHasStarted(true)}
+          />
+        )}
       </Box>
       <ClearSavedAnswersDialog
         open={isClearDialogOpen}

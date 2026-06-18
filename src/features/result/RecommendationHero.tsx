@@ -22,26 +22,31 @@ export default function RecommendationHero({ result }: RecommendationHeroProps) 
     <Paper
       variant="outlined"
       sx={{
-        p: { xs: 3, md: 4 },
+        p: { xs: 2.5, sm: 3, md: 4 },
         borderRadius: 3,
-        bgcolor: 'background.paper'
+        bgcolor: 'background.paper',
+        width: '100%'
       }}
     >
-      <Stack spacing={3}>
+      <Stack spacing={{ xs: 2.5, md: 3 }}>
         <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          spacing={3}
+          direction={{ xs: 'column', lg: 'row' }}
+          spacing={{ xs: 2.5, md: 3 }}
           justifyContent="space-between"
           alignItems={{ xs: 'flex-start', md: 'flex-start' }}
         >
-          <Stack spacing={1.25} sx={{ maxWidth: 720 }}>
+          <Stack spacing={1.25} sx={{ flex: '1 1 720px', minWidth: 0 }}>
             <Typography variant="overline" color="text.secondary">
               Recommended path
             </Typography>
-            <Typography variant="h2" component="h2">
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{ fontSize: { xs: '2.5rem', sm: '3rem', lg: '4rem' }, lineHeight: 1.02 }}
+            >
               {recommendation?.label ?? formatPathLabel(result.recommendation)}
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 820 }}>
               {recommendation?.summary}
             </Typography>
             <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
@@ -49,7 +54,7 @@ export default function RecommendationHero({ result }: RecommendationHeroProps) 
             </Stack>
           </Stack>
 
-          <Stack spacing={1.25} sx={{ maxWidth: 360 }}>
+          <Stack spacing={1.25} sx={{ flex: '0 1 520px', minWidth: 0, maxWidth: { lg: 520 } }}>
             <Typography variant="subtitle2" color="text.secondary">
               Executive summary
             </Typography>

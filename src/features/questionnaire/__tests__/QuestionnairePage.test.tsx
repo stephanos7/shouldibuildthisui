@@ -85,17 +85,23 @@ const sectionLabels = [
   /section 4 of 4/i
 ] as const;
 
-function renderQuestionnaire(initialPath = '/') {
+function renderQuestionnaire(initialPath = '/', options: { start?: boolean } = { start: true }) {
   const router = createMemoryRouter(routes, {
     initialEntries: [initialPath]
   });
 
-  return render(
+  const renderResult = render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <RouterProvider router={router} />
     </ThemeProvider>
   );
+
+  if (options.start !== false && initialPath === '/') {
+    fireEvent.click(screen.getByRole('button', { name: /start questionnaire|continue questionnaire/i }));
+  }
+
+  return renderResult;
 }
 
 function fillCurrentStep(labels: readonly RegExp[]) {
@@ -133,7 +139,17 @@ describe('QuestionnairePage', () => {
     window.localStorage.clear();
   });
 
-  it('renders only the first section initially', () => {
+  it('renders a centered intro before the questionnaire starts', () => {
+    renderQuestionnaire('/', { start: false });
+
+    expect(
+      screen.getByRole('heading', { name: /find the best path for your react ui/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start questionnaire/i })).toBeInTheDocument();
+    expect(screen.queryByText(/section 1 of 4/i)).not.toBeInTheDocument();
+  });
+
+  it('renders only the first section after starting', () => {
     renderQuestionnaire();
 
     expect(screen.getByText(/section 1 of 4/i)).toBeInTheDocument();

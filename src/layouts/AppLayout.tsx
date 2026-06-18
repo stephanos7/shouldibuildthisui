@@ -43,7 +43,12 @@ export default function AppLayout() {
           {isInternalRoute ? <InternalNav /> : <PublicNav hasSavedResult={hasSavedResult} />}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="lg" component="main" sx={{ py: 0 }}>
+      <Container
+        maxWidth={isInternalRoute ? 'lg' : false}
+        disableGutters={!isInternalRoute}
+        component="main"
+        sx={{ py: 0 }}
+      >
         <Outlet />
       </Container>
     </Box>

@@ -7,7 +7,7 @@ type ScoreBarRowProps = {
 
 export default function ScoreBarRow({ row }: ScoreBarRowProps) {
   return (
-    <Stack spacing={0.75}>
+    <Stack spacing={0.75} sx={{ overflow: 'hidden' }}>
       <Stack
         direction="row"
         justifyContent="space-between"
