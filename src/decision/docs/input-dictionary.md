@@ -119,7 +119,7 @@ This document explains every `DecisionFacts` field used by the decision engine. 
 ### `applicationCriticality`
 
 - User-facing meaning: business or operational impact if the application performs poorly or becomes hard to maintain.
-- Allowed values: `internal_tool`, `customer_facing`, `revenue_critical`, `regulated_or_operationally_critical`
+- Allowed values: `internal_tool`, `customer_facing`, `revenue_critical`, `regulated_or_critical`
 - Why it matters: application criticality is a direct proxy for delivery risk and support expectations.
 - Main affected paths: `build_it_yourself` for narrow internal prototypes, `mui_x_premium` and especially `mui_x_enterprise` for higher-risk applications.
 - Common interactions: used by the gate, `quality-risk-regulated-operationally-critical-app`, and `delivery-enterprise-support-customer-rollout`.

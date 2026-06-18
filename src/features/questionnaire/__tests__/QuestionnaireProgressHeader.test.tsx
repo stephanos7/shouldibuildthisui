@@ -9,44 +9,24 @@ afterEach(() => {
 });
 
 describe('QuestionnaireProgressHeader', () => {
-  it('renders section metadata, title, and accessible progress', () => {
-    render(
+  it('renders section metadata, progress segments, and one divider', () => {
+    const { container } = render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <QuestionnaireProgressHeader
           sectionIndex={1}
           sectionCount={4}
-          sectionTitle="Design System and Workflow"
-          answeredCount={6}
-          totalQuestionCount={16}
+          completedSectionIndexes={[0]}
         />
       </ThemeProvider>
     );
 
     expect(screen.getByText(/section 2 of 4/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: /design system and workflow/i })).toBeInTheDocument();
-    expect(screen.getByText(/6 of 16 answered/i)).toBeInTheDocument();
-    expect(screen.getByText(/step 2 of 4/i)).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: /assessment completion progress/i })).toBeInTheDocument();
-  });
-
-  it('calculates completion from the answered count', () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <QuestionnaireProgressHeader
-          sectionIndex={0}
-          sectionCount={4}
-          sectionTitle="Team and Scale"
-          answeredCount={5}
-          totalQuestionCount={16}
-        />
-      </ThemeProvider>
-    );
-
-    expect(screen.getByRole('progressbar', { name: /assessment completion progress/i })).toHaveAttribute(
-      'aria-valuenow',
-      '31'
-    );
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(screen.getByRole('list', { name: /assessment section progress/i })).toBeInTheDocument();
+    expect(screen.getByRole('listitem', { name: /section 1 of 4, completed/i })).toBeInTheDocument();
+    expect(screen.getByRole('listitem', { name: /section 2 of 4, current section/i })).toBeInTheDocument();
+    expect(screen.getByRole('listitem', { name: /section 3 of 4/i })).toBeInTheDocument();
+    expect(container.querySelectorAll('hr')).toHaveLength(1);
   });
 });

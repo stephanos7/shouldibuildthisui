@@ -136,6 +136,18 @@ describe('QuestionnairePage', () => {
     expect(screen.queryByRole('button', { name: /get recommendation/i })).not.toBeInTheDocument();
   });
 
+  it('renders the first question after the progress header', () => {
+    renderQuestionnaire();
+
+    const sectionLabel = screen.getByText(/section 1 of 4/i);
+    const questionHeading = screen.getByRole('heading', {
+      level: 3,
+      name: /how many frontend developers work on these react applications\?/i
+    });
+
+    expect(sectionLabel.compareDocumentPosition(questionHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('renders navigation after the question rows', () => {
     renderQuestionnaire();
 

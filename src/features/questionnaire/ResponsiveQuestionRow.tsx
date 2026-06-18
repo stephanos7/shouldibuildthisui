@@ -24,7 +24,7 @@ export default function ResponsiveQuestionRow({
         borderColor: 'divider',
         '&:first-of-type': {
           borderTop: 0,
-          pt: 0
+          pt: { xs: 2.5, md: 3 }
         }
       }}
     >

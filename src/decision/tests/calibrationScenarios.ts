@@ -1,5 +1,5 @@
-import type { DecisionFacts } from '../types/DecisionFacts';
-import type { Path } from '../types/Path';
+import type { DecisionFacts } from "../types/DecisionFacts";
+import type { Path } from "../types/Path";
 
 export type CalibrationScenario = {
   id: string;
@@ -10,22 +10,22 @@ export type CalibrationScenario = {
 };
 
 const baselineFacts: DecisionFacts = {
-  frontendDeveloperCount: '10_19',
-  teamCount: '2_3',
-  reactAppCount: '2_4',
-  designSystemMaturity: 'early',
-  uiKnowledgeDistribution: 'distributed',
-  designEngineeringFriction: 'medium',
-  standardizationIntent: 'none',
-  dataGridComplexity: 'simple_tables',
-  performanceCriticality: 'medium',
-  accessibilityCriticality: 'medium',
-  changeLeadTime: 'days',
-  uiRegressionFrequency: 'occasional',
-  deliveryUrgency: 'medium',
-  applicationCriticality: 'customer_facing',
-  supportExpectation: 'standard_support',
-  ownershipHorizon: 'long_term'
+  frontendDeveloperCount: "10_19",
+  teamCount: "2_3",
+  reactAppCount: "2_4",
+  designSystemMaturity: "early",
+  uiKnowledgeDistribution: "distributed",
+  designEngineeringFriction: "medium",
+  standardizationIntent: "none",
+  dataGridComplexity: "simple_tables",
+  performanceCriticality: "medium",
+  accessibilityCriticality: "medium",
+  changeLeadTime: "days",
+  uiRegressionFrequency: "occasional",
+  deliveryUrgency: "medium",
+  applicationCriticality: "customer_facing",
+  supportExpectation: "standard_support",
+  ownershipHorizon: "long_term"
 };
 
 function createFacts(overrides: Partial<DecisionFacts>): DecisionFacts {
@@ -37,413 +37,443 @@ function createFacts(overrides: Partial<DecisionFacts>): DecisionFacts {
 
 export const calibrationScenarios: CalibrationScenario[] = [
   {
-    id: 'prototype-simple-internal-tool',
-    label: 'Simple internal prototype',
+    id: "prototype-simple-internal-tool",
+    label: "Simple internal prototype",
     input: createFacts({
-      frontendDeveloperCount: '1_9',
-      teamCount: '1',
-      reactAppCount: '1',
-      dataGridComplexity: 'none',
-      accessibilityCriticality: 'low',
-      applicationCriticality: 'internal_tool',
-      supportExpectation: 'self_serve',
-      ownershipHorizon: 'prototype'
+      frontendDeveloperCount: "1_9",
+      teamCount: "1",
+      reactAppCount: "1",
+      dataGridComplexity: "none",
+      accessibilityCriticality: "low",
+      applicationCriticality: "internal_tool",
+      supportExpectation: "self_serve",
+      ownershipHorizon: "prototype"
     }),
-    expectedRecommendation: 'build_it_yourself',
-    notes: 'Matches the single shipped gate for a narrow internal prototype.'
+    expectedRecommendation: "build_it_yourself",
+    notes: "Matches the single shipped gate for a narrow internal prototype."
   },
   {
-    id: 'small-team-no-advanced-ui',
-    label: 'Small team with no advanced UI needs',
+    id: "small-team-no-advanced-ui",
+    label: "Small team with no advanced UI needs",
     input: createFacts({
-      teamCount: '1',
-      reactAppCount: '1',
-      dataGridComplexity: 'none',
-      standardizationIntent: 'none'
+      teamCount: "1",
+      reactAppCount: "1",
+      dataGridComplexity: "none",
+      standardizationIntent: "none"
     }),
-    expectedRecommendation: 'build_it_yourself',
-    notes: 'A single team with simple UI needs should stay on the lightest path.'
-  },
-  {
-    id: 'long-term-low-risk-internal-tool',
-    label: 'Long-term low-risk internal tool',
-    input: createFacts({
-      frontendDeveloperCount: '1_9',
-      teamCount: '1',
-      reactAppCount: '1',
-      designSystemMaturity: 'none',
-      uiKnowledgeDistribution: 'distributed',
-      designEngineeringFriction: 'low',
-      standardizationIntent: 'none',
-      dataGridComplexity: 'none',
-      performanceCriticality: 'low',
-      accessibilityCriticality: 'low',
-      changeLeadTime: 'same_day',
-      uiRegressionFrequency: 'rare',
-      deliveryUrgency: 'low',
-      applicationCriticality: 'internal_tool',
-      supportExpectation: 'self_serve',
-      ownershipHorizon: 'long_term'
-    }),
-    expectedRecommendation: 'build_it_yourself',
+    expectedRecommendation: "build_it_yourself",
     notes:
-      'Long-term but narrowly scoped internal tools should stay score-based while producing several aligned low-risk signals.'
+      "A single team with simple UI needs should stay on the lightest path."
   },
   {
-    id: 'small-team-advanced-grids',
-    label: 'Small team with advanced grids',
+    id: "long-term-low-risk-internal-tool",
+    label: "Long-term low-risk internal tool",
     input: createFacts({
-      teamCount: '1',
-      reactAppCount: '1',
-      dataGridComplexity: 'advanced_grids'
+      frontendDeveloperCount: "1_9",
+      teamCount: "1",
+      reactAppCount: "1",
+      designSystemMaturity: "none",
+      uiKnowledgeDistribution: "distributed",
+      designEngineeringFriction: "low",
+      standardizationIntent: "none",
+      dataGridComplexity: "none",
+      performanceCriticality: "low",
+      accessibilityCriticality: "low",
+      changeLeadTime: "same_day",
+      uiRegressionFrequency: "rare",
+      deliveryUrgency: "low",
+      applicationCriticality: "internal_tool",
+      supportExpectation: "self_serve",
+      ownershipHorizon: "long_term"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Advanced grid capability should outweigh small-team scale.'
+    expectedRecommendation: "build_it_yourself",
+    notes:
+      "Long-term but narrowly scoped internal tools should stay score-based while producing several aligned low-risk signals."
   },
   {
-    id: 'moderate-team-narrow-scope',
-    label: 'Moderate team with narrow scope',
+    id: "small-team-advanced-grids",
+    label: "Small team with advanced grids",
     input: createFacts({
-      teamCount: '2_3',
-      reactAppCount: '2_4',
-      standardizationIntent: 'local_consistency'
+      teamCount: "1",
+      reactAppCount: "1",
+      dataGridComplexity: "advanced_grids"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'A moderate team with a narrow React footprint should lean toward Core.'
+    expectedRecommendation: "mui_x_premium",
+    notes: "Advanced grid capability should outweigh small-team scale."
   },
   {
-    id: 'moderate-team-multiple-apps',
-    label: 'Moderate team with multiple apps',
+    id: "moderate-team-narrow-scope",
+    label: "Moderate team with narrow scope",
     input: createFacts({
-      teamCount: '2_3',
-      reactAppCount: '5_10',
-      standardizationIntent: 'cross_app_consistency'
+      teamCount: "2_3",
+      reactAppCount: "2_4",
+      standardizationIntent: "local_consistency"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'Cross-app reuse without enterprise pressure should still land on Core.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "A moderate team with a narrow React footprint should lean toward Core."
   },
   {
-    id: 'large-org-low-complexity',
-    label: 'Large organization with low complexity',
+    id: "moderate-team-multiple-apps",
+    label: "Moderate team with multiple apps",
     input: createFacts({
-      frontendDeveloperCount: '50_plus',
-      teamCount: '8_plus',
-      reactAppCount: '11_plus',
-      standardizationIntent: 'local_consistency',
-      dataGridComplexity: 'simple_tables',
-      supportExpectation: 'self_serve'
+      teamCount: "2_3",
+      reactAppCount: "5_10",
+      standardizationIntent: "cross_app_consistency"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Broad rollout with low-complexity UI should stay on Premium when enterprise support and org-wide governance are absent.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "Cross-app reuse without enterprise pressure should still land on Core."
   },
   {
-    id: 'large-frontend-narrow-scope',
-    label: 'Large frontend population with narrow scope',
+    id: "large-org-low-complexity",
+    label: "Large organization with low complexity",
     input: createFacts({
-      frontendDeveloperCount: '50_plus',
-      teamCount: '1',
-      reactAppCount: '1',
-      dataGridComplexity: 'simple_tables',
-      standardizationIntent: 'none'
+      frontendDeveloperCount: "50_plus",
+      teamCount: "8_plus",
+      reactAppCount: "11_plus",
+      standardizationIntent: "local_consistency",
+      dataGridComplexity: "simple_tables",
+      supportExpectation: "self_serve"
     }),
-    expectedRecommendation: 'build_it_yourself',
-    notes: 'A large frontend population alone should not outweigh a single-team, single-app scope.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Broad rollout with low-complexity UI should stay on Premium when enterprise support and org-wide governance are absent."
   },
   {
-    id: 'large-frontend-broad-rollout',
-    label: 'Large frontend population with broad rollout',
+    id: "large-frontend-narrow-scope",
+    label: "Large frontend population with narrow scope",
     input: createFacts({
-      frontendDeveloperCount: '50_plus',
-      teamCount: '8_plus',
-      reactAppCount: '11_plus',
-      standardizationIntent: 'cross_app_consistency',
-      supportExpectation: 'standard_support'
+      frontendDeveloperCount: "50_plus",
+      teamCount: "1",
+      reactAppCount: "1",
+      dataGridComplexity: "simple_tables",
+      standardizationIntent: "none"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Broad rollout with a large frontend population should strengthen Premium without drifting to Enterprise when top-tier support is absent.'
+    expectedRecommendation: "build_it_yourself",
+    notes:
+      "A large frontend population alone should not outweigh a single-team, single-app scope."
   },
   {
-    id: 'multi-team-multi-app-enterprise',
-    label: 'Multi-team multi-app enterprise pattern',
+    id: "large-frontend-broad-rollout",
+    label: "Large frontend population with broad rollout",
     input: createFacts({
-      frontendDeveloperCount: '50_plus',
-      teamCount: '8_plus',
-      reactAppCount: '11_plus',
-      standardizationIntent: 'org_wide_platform',
-      supportExpectation: 'enterprise_support',
-      applicationCriticality: 'customer_facing'
+      frontendDeveloperCount: "50_plus",
+      teamCount: "8_plus",
+      reactAppCount: "11_plus",
+      standardizationIntent: "cross_app_consistency",
+      supportExpectation: "standard_support"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Broad rollout plus enterprise support should clearly favor Enterprise.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Broad rollout with a large frontend population should strengthen Premium without drifting to Enterprise when top-tier support is absent."
   },
   {
-    id: 'centralized-design-system',
-    label: 'Centralized design system',
+    id: "multi-team-multi-app-enterprise",
+    label: "Multi-team multi-app enterprise pattern",
     input: createFacts({
-      designSystemMaturity: 'centralized',
-      standardizationIntent: 'org_wide_platform',
-      teamCount: '4_7',
-      reactAppCount: '5_10'
+      frontendDeveloperCount: "50_plus",
+      teamCount: "8_plus",
+      reactAppCount: "11_plus",
+      standardizationIntent: "org_wide_platform",
+      supportExpectation: "enterprise_support",
+      applicationCriticality: "customer_facing"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Centralized design ownership and org-wide governance should favor Enterprise.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Broad rollout plus enterprise support should clearly favor Enterprise."
   },
   {
-    id: 'early-design-system-local-consistency',
-    label: 'Early design system with local consistency',
+    id: "centralized-design-system",
+    label: "Centralized design system",
     input: createFacts({
-      designSystemMaturity: 'early',
-      standardizationIntent: 'local_consistency',
-      teamCount: '2_3',
-      reactAppCount: '2_4'
+      designSystemMaturity: "centralized",
+      standardizationIntent: "org_wide_platform",
+      teamCount: "4_7",
+      reactAppCount: "5_10"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'Early standardization work should stay on the lighter shared foundation.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Centralized design ownership and org-wide governance should favor Enterprise."
   },
   {
-    id: 'knowledge-single-point',
-    label: 'Knowledge concentrated in one person',
+    id: "early-design-system-local-consistency",
+    label: "Early design system with local consistency",
     input: createFacts({
-      uiKnowledgeDistribution: 'single_point',
-      ownershipHorizon: 'long_term'
+      designSystemMaturity: "early",
+      standardizationIntent: "local_consistency",
+      teamCount: "2_3",
+      reactAppCount: "2_4"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'Long-lived products with a single UI owner should favor standardization.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "Early standardization work should stay on the lighter shared foundation."
   },
   {
-    id: 'distributed-knowledge-simple-ui',
-    label: 'Distributed knowledge with simple UI',
+    id: "knowledge-single-point",
+    label: "Knowledge concentrated in one person",
     input: createFacts({
-      teamCount: '1',
-      reactAppCount: '1',
-      uiKnowledgeDistribution: 'distributed',
-      dataGridComplexity: 'none',
-      standardizationIntent: 'none'
+      uiKnowledgeDistribution: "single_point",
+      ownershipHorizon: "long_term"
     }),
-    expectedRecommendation: 'build_it_yourself',
-    notes: 'Simple UI with distributed knowledge should not introduce unnecessary platform weight.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "Long-lived products with a single UI owner should favor standardization."
   },
   {
-    id: 'frequent-regressions',
-    label: 'Frequent regressions',
+    id: "distributed-knowledge-simple-ui",
+    label: "Distributed knowledge with simple UI",
     input: createFacts({
-      uiRegressionFrequency: 'frequent',
-      changeLeadTime: 'weeks'
+      teamCount: "1",
+      reactAppCount: "1",
+      uiKnowledgeDistribution: "distributed",
+      dataGridComplexity: "none",
+      standardizationIntent: "none"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Sustained regression risk and slower change cycles should default to Premium unless the application context is high-risk.'
+    expectedRecommendation: "build_it_yourself",
+    notes:
+      "Simple UI with distributed knowledge should not introduce unnecessary platform weight."
   },
   {
-    id: 'constant-regressions-long-lead-time',
-    label: 'Constant regressions and long lead time',
+    id: "frequent-regressions",
+    label: "Frequent regressions",
     input: createFacts({
-      uiRegressionFrequency: 'constant',
-      changeLeadTime: 'months'
+      uiRegressionFrequency: "frequent",
+      changeLeadTime: "weeks"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Even the strongest maintainability pattern should stay on Premium without additional high-risk application signals.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Sustained regression risk and slower change cycles should default to Premium unless the application context is high-risk."
   },
   {
-    id: 'fixed-deadline-pressure',
-    label: 'Fixed deadline pressure',
+    id: "constant-regressions-long-lead-time",
+    label: "Constant regressions and long lead time",
     input: createFacts({
-      teamCount: '2_3',
-      reactAppCount: '2_4',
-      standardizationIntent: 'local_consistency',
-      deliveryUrgency: 'fixed_deadline',
-      uiRegressionFrequency: 'frequent'
+      uiRegressionFrequency: "constant",
+      changeLeadTime: "months"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'Deadline pressure with regression risk should push toward safer reusable components.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Even the strongest maintainability pattern should stay on Premium without additional high-risk application signals."
   },
   {
-    id: 'regulated-operationally-critical-app',
-    label: 'Regulated or operationally critical app',
+    id: "fixed-deadline-pressure",
+    label: "Fixed deadline pressure",
     input: createFacts({
-      applicationCriticality: 'regulated_or_operationally_critical',
-      accessibilityCriticality: 'regulated_or_mandatory'
+      teamCount: "2_3",
+      reactAppCount: "2_4",
+      standardizationIntent: "local_consistency",
+      deliveryUrgency: "fixed_deadline",
+      uiRegressionFrequency: "frequent"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Critical regulated workflows should strongly favor Enterprise.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "Deadline pressure with regression risk should push toward safer reusable components."
   },
   {
-    id: 'revenue-critical-customer-facing',
-    label: 'Revenue-critical customer-facing app',
+    id: "regulated-operationally-critical-app",
+    label: "Regulated or operationally critical app",
     input: createFacts({
-      applicationCriticality: 'revenue_critical',
-      supportExpectation: 'enterprise_support',
-      teamCount: '4_7',
-      reactAppCount: '5_10'
+      applicationCriticality: "regulated_or_critical",
+      accessibilityCriticality: "regulated_or_mandatory"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Revenue impact plus enterprise support expectations should favor Enterprise.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes: "Critical regulated workflows should strongly favor Enterprise."
   },
   {
-    id: 'high-accessibility-criticality',
-    label: 'High accessibility criticality',
+    id: "revenue-critical-customer-facing",
+    label: "Revenue-critical customer-facing app",
     input: createFacts({
-      accessibilityCriticality: 'high',
-      teamCount: '2_3',
-      reactAppCount: '2_4',
-      standardizationIntent: 'cross_app_consistency'
+      applicationCriticality: "revenue_critical",
+      supportExpectation: "enterprise_support",
+      teamCount: "4_7",
+      reactAppCount: "5_10"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'High accessibility importance alone should still keep a moderate org on Core.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Revenue impact plus enterprise support expectations should favor Enterprise."
   },
   {
-    id: 'enterprise-support-expectation',
-    label: 'Enterprise support expectation',
+    id: "high-accessibility-criticality",
+    label: "High accessibility criticality",
     input: createFacts({
-      supportExpectation: 'enterprise_support',
-      applicationCriticality: 'customer_facing',
-      teamCount: '4_7',
-      reactAppCount: '5_10'
+      accessibilityCriticality: "high",
+      teamCount: "2_3",
+      reactAppCount: "2_4",
+      standardizationIntent: "cross_app_consistency"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Enterprise support demand plus broader rollout should land on Enterprise.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "High accessibility importance alone should still keep a moderate org on Core."
   },
   {
-    id: 'enterprise-support-moderate-scale-customer-facing',
-    label: 'Enterprise support at moderate scale for customer-facing work',
+    id: "enterprise-support-expectation",
+    label: "Enterprise support expectation",
     input: createFacts({
-      supportExpectation: 'enterprise_support',
-      applicationCriticality: 'customer_facing'
+      supportExpectation: "enterprise_support",
+      applicationCriticality: "customer_facing",
+      teamCount: "4_7",
+      reactAppCount: "5_10"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Enterprise support demand alone should not push moderate-scale customer-facing work into Enterprise.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Enterprise support demand plus broader rollout should land on Enterprise."
   },
   {
-    id: 'enterprise-support-moderate-scale-internal',
-    label: 'Enterprise support at moderate scale for internal work',
+    id: "enterprise-support-moderate-scale-customer-facing",
+    label: "Enterprise support at moderate scale for customer-facing work",
     input: createFacts({
-      supportExpectation: 'enterprise_support',
-      applicationCriticality: 'internal_tool'
+      supportExpectation: "enterprise_support",
+      applicationCriticality: "customer_facing"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Enterprise support demand alone should not push moderate-scale internal work into Enterprise.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Enterprise support demand alone should not push moderate-scale customer-facing work into Enterprise."
   },
   {
-    id: 'self-serve-low-complexity',
-    label: 'Self-serve support and low complexity',
+    id: "enterprise-support-moderate-scale-internal",
+    label: "Enterprise support at moderate scale for internal work",
     input: createFacts({
-      teamCount: '1',
-      reactAppCount: '1',
-      dataGridComplexity: 'none',
-      supportExpectation: 'self_serve',
-      standardizationIntent: 'none'
+      supportExpectation: "enterprise_support",
+      applicationCriticality: "internal_tool"
     }),
-    expectedRecommendation: 'build_it_yourself',
-    notes: 'Low-complexity teams with self-serve expectations should not pay platform overhead.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Enterprise support demand alone should not push moderate-scale internal work into Enterprise."
   },
   {
-    id: 'platform-investment-horizon',
-    label: 'Platform investment horizon',
+    id: "self-serve-low-complexity",
+    label: "Self-serve support and low complexity",
     input: createFacts({
-      ownershipHorizon: 'platform_investment',
-      standardizationIntent: 'org_wide_platform',
-      designSystemMaturity: 'centralized'
+      teamCount: "1",
+      reactAppCount: "1",
+      dataGridComplexity: "none",
+      supportExpectation: "self_serve",
+      standardizationIntent: "none"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'A platform-investment horizon plus centralized governance should favor Enterprise.'
+    expectedRecommendation: "build_it_yourself",
+    notes:
+      "Low-complexity teams with self-serve expectations should not pay platform overhead."
   },
   {
-    id: 'platform-investment-moderate-scale-no-centralization',
-    label: 'Platform investment without centralized governance',
+    id: "platform-investment-horizon",
+    label: "Platform investment horizon",
     input: createFacts({
-      ownershipHorizon: 'platform_investment',
-      standardizationIntent: 'org_wide_platform',
-      designSystemMaturity: 'early'
+      ownershipHorizon: "platform_investment",
+      standardizationIntent: "org_wide_platform",
+      designSystemMaturity: "centralized"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Platform investment intent without centralized governance should stay on Premium.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "A platform-investment horizon plus centralized governance should favor Enterprise."
   },
   {
-    id: 'mission-critical-grids',
-    label: 'Mission-critical grids',
+    id: "platform-investment-moderate-scale-no-centralization",
+    label: "Platform investment without centralized governance",
     input: createFacts({
-      dataGridComplexity: 'mission_critical_grids'
+      ownershipHorizon: "platform_investment",
+      standardizationIntent: "org_wide_platform",
+      designSystemMaturity: "early"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Mission-critical grid needs should favor the most capable supported path.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Platform investment intent without centralized governance should stay on Premium."
   },
   {
-    id: 'mission-critical-grids-enterprise-support',
-    label: 'Mission-critical grids with enterprise support',
+    id: "mission-critical-grids",
+    label: "Mission-critical grids",
     input: createFacts({
-      dataGridComplexity: 'mission_critical_grids',
-      supportExpectation: 'enterprise_support'
+      dataGridComplexity: "mission_critical_grids"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Mission-critical grids plus enterprise support should strongly reinforce Enterprise.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Mission-critical grid needs should favor the most capable supported path."
   },
   {
-    id: 'advanced-grids-limited-scale',
-    label: 'Advanced grids but limited org scale',
+    id: "mission-critical-grids-enterprise-support",
+    label: "Mission-critical grids with enterprise support",
     input: createFacts({
-      teamCount: '2_3',
-      reactAppCount: '2_4',
-      dataGridComplexity: 'advanced_grids'
+      dataGridComplexity: "mission_critical_grids",
+      supportExpectation: "enterprise_support"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Advanced grid requirements should still justify Premium for smaller orgs.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Mission-critical grids plus enterprise support should strongly reinforce Enterprise."
   },
   {
-    id: 'org-wide-standardization',
-    label: 'Org-wide standardization intent',
+    id: "advanced-grids-limited-scale",
+    label: "Advanced grids but limited org scale",
     input: createFacts({
-      standardizationIntent: 'org_wide_platform',
-      teamCount: '2_3',
-      reactAppCount: '2_4'
+      teamCount: "2_3",
+      reactAppCount: "2_4",
+      dataGridComplexity: "advanced_grids"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Explicit org-wide standardization alone should lean toward Premium unless reinforced by centralized governance or severe friction.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Advanced grid requirements should still justify Premium for smaller orgs."
   },
   {
-    id: 'design-engineering-friction',
-    label: 'High design-engineering friction',
+    id: "org-wide-standardization",
+    label: "Org-wide standardization intent",
     input: createFacts({
-      designEngineeringFriction: 'severe',
-      standardizationIntent: 'cross_app_consistency',
-      teamCount: '2_3',
-      reactAppCount: '2_4'
+      standardizationIntent: "org_wide_platform",
+      teamCount: "2_3",
+      reactAppCount: "2_4"
     }),
-    expectedRecommendation: 'mui_core',
-    notes: 'Cross-app consistency with severe workflow friction should still recommend Core for moderate-scale shared foundations.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Explicit org-wide standardization alone should lean toward Premium unless reinforced by centralized governance or severe friction."
   },
   {
-    id: 'design-engineering-friction-org-wide-platform',
-    label: 'Severe design-engineering friction with org-wide platform intent',
+    id: "design-engineering-friction",
+    label: "High design-engineering friction",
     input: createFacts({
-      designEngineeringFriction: 'severe',
-      standardizationIntent: 'org_wide_platform',
-      designSystemMaturity: 'centralized',
-      teamCount: '4_7',
-      reactAppCount: '5_10'
+      designEngineeringFriction: "severe",
+      standardizationIntent: "cross_app_consistency",
+      teamCount: "2_3",
+      reactAppCount: "2_4"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Severe workflow friction should reinforce enterprise coordination when the organization is aiming for an org-wide platform.'
+    expectedRecommendation: "mui_core",
+    notes:
+      "Cross-app consistency with severe workflow friction should still recommend Core for moderate-scale shared foundations."
   },
   {
-    id: 'advanced-grids-high-performance',
-    label: 'Advanced grids with high performance criticality',
+    id: "design-engineering-friction-org-wide-platform",
+    label: "Severe design-engineering friction with org-wide platform intent",
     input: createFacts({
-      teamCount: '2_3',
-      reactAppCount: '2_4',
-      dataGridComplexity: 'advanced_grids',
-      performanceCriticality: 'high'
+      designEngineeringFriction: "severe",
+      standardizationIntent: "org_wide_platform",
+      designSystemMaturity: "centralized",
+      teamCount: "4_7",
+      reactAppCount: "5_10"
     }),
-    expectedRecommendation: 'mui_x_premium',
-    notes: 'Higher performance needs should reinforce Premium when advanced grids are already in scope.'
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Severe workflow friction should reinforce enterprise coordination when the organization is aiming for an org-wide platform."
   },
   {
-    id: 'mission-critical-grids-critical-performance',
-    label: 'Mission-critical grids with critical performance',
+    id: "advanced-grids-high-performance",
+    label: "Advanced grids with high performance criticality",
     input: createFacts({
-      dataGridComplexity: 'mission_critical_grids',
-      performanceCriticality: 'critical',
-      supportExpectation: 'enterprise_support'
+      teamCount: "2_3",
+      reactAppCount: "2_4",
+      dataGridComplexity: "advanced_grids",
+      performanceCriticality: "high"
     }),
-    expectedRecommendation: 'mui_x_enterprise',
-    notes: 'Mission-critical grids plus critical performance and enterprise support should clearly favor Enterprise.'
+    expectedRecommendation: "mui_x_premium",
+    notes:
+      "Higher performance needs should reinforce Premium when advanced grids are already in scope."
+  },
+  {
+    id: "mission-critical-grids-critical-performance",
+    label: "Mission-critical grids with critical performance",
+    input: createFacts({
+      dataGridComplexity: "mission_critical_grids",
+      performanceCriticality: "critical",
+      supportExpectation: "enterprise_support"
+    }),
+    expectedRecommendation: "mui_x_enterprise",
+    notes:
+      "Mission-critical grids plus critical performance and enterprise support should clearly favor Enterprise."
   }
 ];

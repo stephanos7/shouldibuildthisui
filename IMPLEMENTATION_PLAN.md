@@ -174,7 +174,7 @@ export type DecisionFacts = {
     | "internal_tool"
     | "customer_facing"
     | "revenue_critical"
-    | "regulated_or_operationally_critical";
+    | "regulated_or_critical";
   supportExpectation:
     | "self_serve"
     | "standard_support"

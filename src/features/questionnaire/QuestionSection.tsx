@@ -6,6 +6,7 @@ import type { QuestionnaireValues } from './questionnaireSchema';
 import type { QuestionDefinition } from './questionnaireTypes';
 
 type QuestionSectionProps = {
+  sectionIndex?: number;
   questions: QuestionDefinition[];
 };
 

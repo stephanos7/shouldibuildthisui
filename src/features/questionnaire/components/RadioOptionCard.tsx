@@ -25,7 +25,6 @@ export default function RadioOptionCard({
         height: '100%',
         px: { xs: 2, md: 1.5 },
         py: { xs: 1.5, md: 0.875 },
-        borderRadius: { xs: 3, md: 2 },
         cursor: 'pointer',
         borderColor: selected ? 'primary.main' : 'divider',
         bgcolor: selected ? 'action.selected' : 'background.paper',

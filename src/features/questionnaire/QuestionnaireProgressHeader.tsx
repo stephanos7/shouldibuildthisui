@@ -1,30 +1,24 @@
-import { Box, Chip, Divider, LinearProgress, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Grid,
+  Stack,
+  Typography
+} from '@mui/material';
+import SectionProgressSegments from './SectionProgressSegments';
 
 export type QuestionnaireProgressHeaderProps = {
   sectionIndex: number;
   sectionCount: number;
-  sectionTitle: string;
-  answeredCount: number;
-  totalQuestionCount: number;
+  completedSectionIndexes: number[];
 };
-
-function clampCompletionPercent(answeredCount: number, totalQuestionCount: number) {
-  if (totalQuestionCount <= 0) {
-    return 0;
-  }
-
-  return Math.round((answeredCount / totalQuestionCount) * 100);
-}
 
 export default function QuestionnaireProgressHeader({
   sectionIndex,
   sectionCount,
-  sectionTitle,
-  answeredCount,
-  totalQuestionCount
+  completedSectionIndexes
 }: QuestionnaireProgressHeaderProps) {
   const sectionNumber = sectionIndex + 1;
-  const completionPercent = clampCompletionPercent(answeredCount, totalQuestionCount);
 
   return (
     <Box
@@ -33,14 +27,9 @@ export default function QuestionnaireProgressHeader({
         mb: { xs: 3, md: 4 }
       }}
     >
-      <Stack spacing={2}>
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          justifyContent="space-between"
-          alignItems={{ xs: 'flex-start', md: 'flex-end' }}
-          spacing={1.5}
-        >
-          <Box>
+      <Grid container spacing={{ xs: 2, md: 4 }} alignItems="flex-end">
+        <Grid item xs={12} md={4}>
+          <Stack spacing={1}>
             <Typography
               variant="overline"
               color="text.secondary"
@@ -48,55 +37,21 @@ export default function QuestionnaireProgressHeader({
             >
               SECTION {sectionNumber} OF {sectionCount}
             </Typography>
+          </Stack>
+        </Grid>
 
-            <Typography
-              variant="h3"
-              component="h1"
-              sx={{
-                mt: 1,
-                fontSize: { xs: '2rem', md: '2.75rem' },
-                lineHeight: 1.1
-              }}
-            >
-              {sectionTitle}
-            </Typography>
-          </Box>
-
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            sx={{ pb: { md: 0.5 } }}
-          >
-            <Chip
-              size="small"
-              variant="outlined"
-              label={`${answeredCount} of ${totalQuestionCount} answered`}
-            />
-            <Chip
-              size="small"
-              variant="outlined"
-              label={`Step ${sectionNumber} of ${sectionCount}`}
+        <Grid item xs={12} md={8}>
+          <Stack sx={{ width: '100%' }}>
+            <SectionProgressSegments
+              sectionIndex={sectionIndex}
+              sectionCount={sectionCount}
+              completedSectionIndexes={completedSectionIndexes}
             />
           </Stack>
-        </Stack>
+        </Grid>
+      </Grid>
 
-        <LinearProgress
-          variant="determinate"
-          value={completionPercent}
-          aria-label="Assessment completion progress"
-          sx={{
-            height: 6,
-            borderRadius: 999,
-            bgcolor: 'action.hover',
-            '& .MuiLinearProgress-bar': {
-              borderRadius: 999
-            }
-          }}
-        />
-
-        <Divider />
-      </Stack>
+      <Divider sx={{ mt: { xs: 2.5, md: 3 } }} />
     </Box>
   );
 }

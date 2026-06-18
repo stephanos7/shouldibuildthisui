@@ -15,7 +15,7 @@ import {
 import AssessmentHero from './AssessmentHero';
 import ClearSavedAnswersDialog from './ClearSavedAnswersDialog';
 import QuestionSection from './QuestionSection';
-import { questionsBySection, totalQuestionCount } from './questions';
+import { questionsBySection } from './questions';
 import { questionnaireSchema, type QuestionnaireValues } from './questionnaireSchema';
 import type { QuestionnaireResultState } from './questionnaireResultState';
 import QuestionnaireProgressHeader from './QuestionnaireProgressHeader';
@@ -27,8 +27,10 @@ function isAnswered(value: unknown) {
   return value !== undefined && value !== null && value !== '';
 }
 
-function getAnsweredCount(values: Partial<QuestionnaireValues> | undefined) {
-  return Object.values(values ?? {}).filter(isAnswered).length;
+function getCompletedSectionIndexes(values: Partial<QuestionnaireValues> | undefined) {
+  return questionsBySection.flatMap(({ questionIds }, sectionIndex) =>
+    questionIds.every((questionId) => isAnswered(values?.[questionId])) ? [sectionIndex] : []
+  );
 }
 
 function getFirstIncompleteSectionIndex(values: Partial<QuestionnaireValues> | null) {
@@ -63,7 +65,7 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
   const watchedValues = useWatch({ control });
   const currentSection = questionsBySection[activeStep];
   const isFinalStep = activeStep === questionsBySection.length - 1;
-  const answeredCount = getAnsweredCount(watchedValues);
+  const completedSectionIndexes = getCompletedSectionIndexes(watchedValues);
 
   useEffect(() => {
     if (!persistenceReadyRef.current) {
@@ -128,9 +130,7 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
         <QuestionnaireProgressHeader
           sectionIndex={activeStep}
           sectionCount={questionsBySection.length}
-          sectionTitle={currentSection.title}
-          answeredCount={answeredCount}
-          totalQuestionCount={totalQuestionCount}
+          completedSectionIndexes={completedSectionIndexes}
         />
 
         <QuestionSection

@@ -1,40 +1,43 @@
-import type { ScoredRule } from '../../types/Policy';
+import type { ScoredRule } from "../../types/Policy";
 
 export const maintainabilityInteractionRules = [
   {
-    id: 'maintainability-low-friction-fast-stable',
-    label: 'Low-friction stable delivery',
-    intent: 'Reward direct implementation when UI change flow is fast, stable, and low-friction.',
+    id: "maintainability-low-friction-fast-stable",
+    label: "Low-friction stable delivery",
+    intent:
+      "Reward direct implementation when UI change flow is fast, stable, and low-friction.",
     reason:
-      'Low design friction, same-day UI changes, and rare regressions reduce the need for heavier platform investment.',
+      "Low design friction, same-day UI changes, and rare regressions reduce the need for heavier platform investment.",
     enabled: true,
     editable: true,
     conditions: [
-      { field: 'designEngineeringFriction', operator: 'equals', value: 'low' },
-      { field: 'changeLeadTime', operator: 'equals', value: 'same_day' },
-      { field: 'uiRegressionFrequency', operator: 'equals', value: 'rare' }
+      { field: "designEngineeringFriction", operator: "equals", value: "low" },
+      { field: "changeLeadTime", operator: "equals", value: "same_day" },
+      { field: "uiRegressionFrequency", operator: "equals", value: "rare" }
     ],
     scores: {
       build_it_yourself: 1
     }
   },
   {
-    id: 'maintainability-knowledge-concentration-long-horizon',
-    label: 'Concentrated UI knowledge with long ownership horizon',
-    intent: 'Push toward stronger standardization when narrow ownership must last.',
-    reason: 'Long-lived products with concentrated UI knowledge benefit from reducing person-dependent implementation risk.',
+    id: "maintainability-knowledge-concentration-long-horizon",
+    label: "Concentrated UI knowledge with long ownership horizon",
+    intent:
+      "Push toward stronger standardization when narrow ownership must last.",
+    reason:
+      "Long-lived products with concentrated UI knowledge benefit from reducing person-dependent implementation risk.",
     enabled: true,
     editable: true,
     conditions: [
       {
-        field: 'uiKnowledgeDistribution',
-        operator: 'in',
-        value: ['few_specialists', 'single_point']
+        field: "uiKnowledgeDistribution",
+        operator: "in",
+        value: ["few_specialists", "single_point"]
       },
       {
-        field: 'ownershipHorizon',
-        operator: 'in',
-        value: ['long_term', 'platform_investment']
+        field: "ownershipHorizon",
+        operator: "in",
+        value: ["long_term", "platform_investment"]
       }
     ],
     scores: {
@@ -43,43 +46,46 @@ export const maintainabilityInteractionRules = [
     }
   },
   {
-    id: 'maintainability-frequent-regressions-long-lead-time',
-    label: 'Frequent regressions and long lead time',
-    intent: 'Recognize a maintainability signal that favors stronger supported foundations.',
-    reason: 'Frequent regressions combined with slow UI change cycles increase the value of mature reusable components.',
+    id: "maintainability-frequent-regressions-long-lead-time",
+    label: "Frequent regressions and long lead time",
+    intent:
+      "Recognize a maintainability signal that favors stronger supported foundations.",
+    reason:
+      "Frequent regressions combined with slow UI change cycles increase the value of mature reusable components.",
     enabled: true,
     editable: true,
     conditions: [
       {
-        field: 'uiRegressionFrequency',
-        operator: 'in',
-        value: ['frequent', 'constant']
+        field: "uiRegressionFrequency",
+        operator: "in",
+        value: ["frequent", "constant"]
       },
-      { field: 'changeLeadTime', operator: 'in', value: ['weeks', 'months'] }
+      { field: "changeLeadTime", operator: "in", value: ["weeks", "months"] }
     ],
     scores: {
       mui_x_premium: 3
     }
   },
   {
-    id: 'maintainability-frequent-regressions-high-risk-app',
-    label: 'Frequent regressions in a high-risk app',
-    intent: 'Escalate maintainability-driven enterprise recommendations only when delivery problems hit higher-risk applications.',
+    id: "maintainability-frequent-regressions-high-risk-app",
+    label: "Frequent regressions in a high-risk app",
+    intent:
+      "Escalate maintainability-driven enterprise recommendations only when delivery problems hit higher-risk applications.",
     reason:
-      'Frequent regressions and slow UI delivery in revenue-critical or operationally critical applications justify stronger enterprise support.',
+      "Frequent regressions and slow UI delivery in revenue-critical or operationally critical applications justify stronger enterprise support.",
     enabled: true,
     editable: true,
     conditions: [
       {
-        field: 'uiRegressionFrequency',
-        operator: 'in',
-        value: ['frequent', 'constant']
+        field: "uiRegressionFrequency",
+        operator: "in",
+        value: ["frequent", "constant"]
       },
-      { field: 'changeLeadTime', operator: 'in', value: ['weeks', 'months'] },
+      { field: "changeLeadTime", operator: "in", value: ["weeks", "months"] },
       {
-        field: 'applicationCriticality',
-        operator: 'in',
-        value: ['revenue_critical', 'regulated_or_operationally_critical']
+        field: "applicationCriticality",
+        operator: "in",
+        value: ["revenue_critical", "regulated_or_critical"]
       }
     ],
     scores: {
