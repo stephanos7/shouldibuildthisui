@@ -81,8 +81,8 @@ export function buildExplanation(params: {
 
   return {
     summary: includeRunnerUp
-      ? `Recommended  with a ${margin}-point lead over ${runnerUp}.`
-      : `Recommended  with a clear lead and no competing positive scores.`,
+      ? `Recommended ${recommendation} with a ${margin}-point lead over ${runnerUp}.`
+      : `Recommended ${recommendation} with a clear lead and no competing positive scores.`,
     recommendationReasons: positiveRules.map((rule) => rule.reason),
     counterSignals: negativeRules.map((rule) => rule.reason),
     runnerUp: includeRunnerUp

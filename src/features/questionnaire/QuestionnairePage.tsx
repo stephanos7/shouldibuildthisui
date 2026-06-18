@@ -134,7 +134,6 @@ function QuestionnaireForm({ savedDraft, onRequestClear }: QuestionnaireFormProp
         />
 
         <QuestionSection
-          sectionIndex={activeStep}
           questions={currentSection.questions}
         />
 

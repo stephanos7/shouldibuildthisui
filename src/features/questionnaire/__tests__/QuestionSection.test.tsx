@@ -34,7 +34,6 @@ function QuestionSectionHarness({ defaultValues, validateOnMount = false }: Harn
       <CssBaseline />
       <FormProvider {...methods}>
         <QuestionSection
-          sectionIndex={0}
           questions={[questionsBySection[0].questions[0]]}
         />
       </FormProvider>

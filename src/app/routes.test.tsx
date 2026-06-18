@@ -52,7 +52,7 @@ describe('app routes', () => {
         name: /find the best path for your react ui/i
       })
     ).toBeInTheDocument();
-    expect(screen.getByRole('banner')).toHaveStyle({ position: 'static' });
+    expect(screen.getAllByRole('banner')[0]).toHaveStyle({ position: 'static' });
     expect(screen.queryByRole('button', { name: /calibration/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /recalibration/i })).not.toBeInTheDocument();
   });

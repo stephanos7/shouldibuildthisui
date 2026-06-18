@@ -58,14 +58,24 @@ const sectionAnswerLabels = [
   [/1-9 developers/i, /1 team/i, /1 application/i, /no real design system/i],
   [/low friction/i, /no explicit reuse goal/i, /knowledge is well distributed/i, /usually the same day/i],
   [/rarely/i, /prototype or disposable exploration/i, /no meaningful grid requirements/i, /low criticality/i],
-  [/low priority/i, /internal tool/i, /self-serve documentation and community/i, /low urgency/i]
+  [
+    /low priority/i,
+    /internal productivity tool/i,
+    /self-serve documentation and community/i,
+    /low urgency/i
+  ]
 ] as const;
 
 const nonGateSectionAnswerLabels = [
   [/1-9 developers/i, /1 team/i, /1 application/i, /no real design system/i],
   [/low friction/i, /no explicit reuse goal/i, /knowledge is well distributed/i, /usually the same day/i],
   [/rarely/i, /long-term product/i, /no meaningful grid requirements/i, /low criticality/i],
-  [/low priority/i, /customer-facing product/i, /standard support/i, /low urgency/i]
+  [
+    /low priority/i,
+    /core operational system/i,
+    /standard support/i,
+    /low urgency/i
+  ]
 ] as const;
 
 const sectionLabels = [
@@ -250,7 +260,7 @@ describe('QuestionnairePage', () => {
 
     expect(screen.getByText(/section 2 of 4/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: /how much friction exists between design and engineering\?/i })
+      screen.getByRole('heading', { name: /how much friction exists between designers and engineers\?/i })
     ).toBeInTheDocument();
     expect(screen.queryByText(/section 1 of 4/i)).not.toBeInTheDocument();
   });
