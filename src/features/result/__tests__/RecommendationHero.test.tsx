@@ -31,7 +31,7 @@ describe('RecommendationHero', () => {
     expect(screen.getByText(/recommended path/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /mui x premium/i })).toBeInTheDocument();
     expect(screen.getByText(/low confidence/i)).toBeInTheDocument();
-    expect(screen.getByText(/executive summary/i)).toBeInTheDocument();
+    expect(screen.getByText(/best for advanced ui needs/i)).toBeInTheDocument();
     expect(screen.getByText(/it leads mui x enterprise by 1-point lead\./i)).toBeInTheDocument();
     expect(screen.getByText(/runner-up: mui x enterprise\./i)).toBeInTheDocument();
   });

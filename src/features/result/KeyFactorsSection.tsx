@@ -1,11 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Alert, Box, Button, Divider, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { AppliedRule } from '../../decision/types/DecisionResult';
 import type { Path } from '../../decision/types/Path';
@@ -31,13 +24,18 @@ export default function KeyFactorsSection({
   const hasHiddenFactors = hiddenFactors.length > 0;
 
   return (
-    <Box component="section" aria-labelledby="key-factors-heading">
+    <Paper
+      component="section"
+      variant="outlined"
+      aria-labelledby="key-factors-heading"
+      sx={{ p: { xs: 3, md: 4 }, borderRadius: '28px' }}
+    >
       <Stack spacing={2.5}>
         <Box>
-          <Typography id="key-factors-heading" variant="h5" component="h2">
+          <Typography id="key-factors-heading" variant="h4" component="h2">
             Key factors behind this recommendation
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 680 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75, maxWidth: 680 }}>
             These are the main scoring factors behind the recommendation.
           </Typography>
         </Box>
@@ -81,6 +79,6 @@ export default function KeyFactorsSection({
           </Stack>
         )}
       </Stack>
-    </Box>
+    </Paper>
   );
 }

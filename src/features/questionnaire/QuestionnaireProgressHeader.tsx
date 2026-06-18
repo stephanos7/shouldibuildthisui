@@ -33,7 +33,7 @@ export default function QuestionnaireProgressHeader({
             <Typography
               variant="overline"
               color="text.secondary"
-              sx={{ letterSpacing: 0.8 }}
+              sx={{ letterSpacing: '0.16em' }}
             >
               SECTION {sectionNumber} OF {sectionCount}
             </Typography>

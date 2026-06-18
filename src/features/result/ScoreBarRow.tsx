@@ -43,12 +43,7 @@ export default function ScoreBarRow({ row }: ScoreBarRowProps) {
         value={row.normalizedScore}
         aria-label={`${row.label} score ${row.score}`}
         sx={{
-          height: 8,
-          borderRadius: 999,
-          bgcolor: 'action.hover',
-          '& .MuiLinearProgress-bar': {
-            borderRadius: 999
-          }
+          height: 8
         }}
       />
 

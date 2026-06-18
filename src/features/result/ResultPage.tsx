@@ -1,20 +1,22 @@
-import { Button, Paper, Stack, Typography } from '@mui/material';
-import { useEffect, useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { decide } from '../../decision/engine/decide';
-import { getActiveRecommendationPolicy } from '../../decision/policy/recommendationPolicy';
+import { Button, Paper, Stack, Typography } from "@mui/material";
+import { useEffect, useMemo } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { decide } from "../../decision/engine/decide";
+import { getActiveRecommendationPolicy } from "../../decision/policy/recommendationPolicy";
 import {
   activePolicyMetadataMatches,
   getActivePolicyMetadata
-} from '../../decision/recalibration/getActivePolicyMetadata';
-import { loadDecisionResult, saveDecisionResult } from '../../shared/storage/recommendationStorage';
-import type { QuestionnaireResultState } from '../questionnaire/questionnaireResultState';
-import KeyFactorsSection from './KeyFactorsSection';
-import RecommendationHero from './RecommendationHero';
-import ResultReportLayout from './ResultReportLayout';
-import ResultReportHeader from './ResultReportHeader';
-import ResultReportShell from './ResultReportShell';
-import ScoreComparison from './ScoreComparison';
+} from "../../decision/recalibration/getActivePolicyMetadata";
+import {
+  loadDecisionResult,
+  saveDecisionResult
+} from "../../shared/storage/recommendationStorage";
+import type { QuestionnaireResultState } from "../questionnaire/questionnaireResultState";
+import KeyFactorsSection from "./KeyFactorsSection";
+import RecommendationHero from "./RecommendationHero";
+import ResultReportLayout from "./ResultReportLayout";
+import ResultReportShell from "./ResultReportShell";
+import ScoreComparison from "./ScoreComparison";
 
 type ResultPageProps = {
   state: QuestionnaireResultState | null;
@@ -39,7 +41,9 @@ export default function ResultPage({ state }: ResultPageProps) {
       return null;
     }
 
-    if (activePolicyMetadataMatches(storedResult.metadata, activePolicyMetadata)) {
+    if (
+      activePolicyMetadataMatches(storedResult.metadata, activePolicyMetadata)
+    ) {
       return {
         input: storedResult.input,
         result: storedResult.result,
@@ -63,25 +67,38 @@ export default function ResultPage({ state }: ResultPageProps) {
       return;
     }
 
-    saveDecisionResult(resolvedResult.input, resolvedResult.result, resolvedResult.metadata);
+    saveDecisionResult(
+      resolvedResult.input,
+      resolvedResult.result,
+      resolvedResult.metadata
+    );
   }, [resolvedResult]);
 
   if (!resolvedResult) {
     return (
       <ResultReportShell>
-        <Paper variant="outlined" sx={{ p: 4, maxWidth: 720 }}>
-          <Stack spacing={2}>
-            <Typography variant="h4" component="h1">
+        <Paper
+          variant="outlined"
+          sx={{
+            p: { xs: 3, md: 5 },
+            maxWidth: 720,
+            mx: "auto",
+            borderRadius: "32px"
+          }}
+        >
+          <Stack spacing={2.25}>
+            <Typography variant="h3" component="h1">
               No recommendation found
             </Typography>
-            <Typography color="text.secondary">
+            <Typography color="text.secondary" sx={{ maxWidth: 560 }}>
               Complete the assessment to generate a recommendation report.
             </Typography>
             <Button
               component={RouterLink}
               to="/"
               variant="contained"
-              sx={{ alignSelf: 'flex-start' }}
+              size="large"
+              sx={{ alignSelf: "flex-start" }}
             >
               Start assessment
             </Button>
@@ -94,8 +111,9 @@ export default function ResultPage({ state }: ResultPageProps) {
   return (
     <ResultReportShell>
       <ResultReportLayout
-        reportHeader={<ResultReportHeader />}
-        recommendationHero={<RecommendationHero result={resolvedResult.result} />}
+        recommendationHero={
+          <RecommendationHero result={resolvedResult.result} />
+        }
         keyFactors={
           <KeyFactorsSection
             appliedRules={resolvedResult.result.appliedRules}

@@ -40,6 +40,7 @@ export default function StepNavigation({
           variant="outlined"
           onClick={onBack}
           disabled={isSubmitting}
+          size="large"
           sx={{ width: { xs: '100%', md: 'auto' }, justifySelf: 'start' }}
         >
           Back
@@ -53,6 +54,7 @@ export default function StepNavigation({
         variant="contained"
         onClick={isFinalStep ? undefined : onContinue}
         disabled={isSubmitting}
+        size="large"
         sx={{ width: { xs: '100%', md: 'auto' }, justifySelf: 'end' }}
       >
         {isFinalStep ? 'Get recommendation' : 'Continue'}

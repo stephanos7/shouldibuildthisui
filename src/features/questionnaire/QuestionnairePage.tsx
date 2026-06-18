@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, Box, Container, Snackbar, Stack } from '@mui/material';
+import { Alert, Button, Box, Container, Paper, Snackbar, Stack } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -189,21 +189,36 @@ export default function QuestionnairePage() {
   };
 
   return (
-    <Container maxWidth={false} disableGutters sx={{ py: hasStarted ? { xs: 3, md: 5 } : 0 }}>
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{ py: hasStarted ? { xs: 2.5, md: 5 } : 0 }}
+    >
       <Box
         sx={{
           width: '100%',
-          maxWidth: hasStarted ? 1280 : 'none',
+          maxWidth: hasStarted ? 1320 : 'none',
           mx: 'auto',
           px: hasStarted ? { xs: 2, sm: 3, md: 5 } : 0
         }}
       >
         {hasStarted ? (
-          <QuestionnaireForm
-            key={formSeed}
-            savedDraft={savedDraft}
-            onRequestClear={() => setIsClearDialogOpen(true)}
-          />
+          <Paper
+            variant="outlined"
+            sx={{
+              p: { xs: 2.5, sm: 3.5, md: 5 },
+              borderRadius: '32px',
+              bgcolor: 'rgba(255, 255, 255, 0.84)',
+              backdropFilter: 'blur(14px)',
+              boxShadow: '0 24px 80px rgba(17, 17, 17, 0.06)'
+            }}
+          >
+            <QuestionnaireForm
+              key={formSeed}
+              savedDraft={savedDraft}
+              onRequestClear={() => setIsClearDialogOpen(true)}
+            />
+          </Paper>
         ) : (
           <AssessmentHero
             hasSavedDraft={savedDraft !== null}

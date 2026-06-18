@@ -30,24 +30,46 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ minHeight: '100vh' }}>
-      <AppBar position="static" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(12px)' }}>
-        <Toolbar sx={{ gap: 2, justifyContent: 'space-between' }}>
-          <Typography
-            variant="h6"
-            component={RouterLink}
-            to="/"
-            sx={{ fontWeight: 700, color: 'inherit', textDecoration: 'none' }}
+      <AppBar position="static" elevation={0}>
+        <Toolbar
+          sx={{
+            width: '100%',
+            justifyContent: 'center',
+            px: { xs: 2, sm: 3, md: 5 }
+          }}
+        >
+          <Container
+            maxWidth="lg"
+            disableGutters
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2
+            }}
           >
-            Should I Build This UI
-          </Typography>
-          {isInternalRoute ? <InternalNav /> : <PublicNav hasSavedResult={hasSavedResult} />}
+            <Typography
+              variant="h6"
+              component={RouterLink}
+              to="/"
+              sx={{
+                fontWeight: 700,
+                color: 'inherit',
+                textDecoration: 'none',
+                letterSpacing: '-0.03em'
+              }}
+            >
+              Should I Build This UI
+            </Typography>
+            {isInternalRoute ? <InternalNav /> : <PublicNav hasSavedResult={hasSavedResult} />}
+          </Container>
         </Toolbar>
       </AppBar>
       <Container
         maxWidth={isInternalRoute ? 'lg' : false}
         disableGutters={!isInternalRoute}
         component="main"
-        sx={{ py: 0 }}
+        sx={{ py: 0, position: 'relative' }}
       >
         <Outlet />
       </Container>

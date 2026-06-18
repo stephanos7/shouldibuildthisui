@@ -1,4 +1,5 @@
 import { Paper, Radio, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import type { QuestionOption } from '../questionnaireTypes';
 
 type RadioOptionCardProps = {
@@ -21,22 +22,23 @@ export default function RadioOptionCard({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        minHeight: { xs: 64, md: 46 },
+        minHeight: { xs: 64, md: 52 },
         height: '100%',
-        px: { xs: 2, md: 1.5 },
-        py: { xs: 1.5, md: 0.875 },
+        px: { xs: 2, md: 2 },
+        py: { xs: 1.5, md: 1.25 },
         cursor: 'pointer',
-        borderColor: selected ? 'primary.main' : 'divider',
-        bgcolor: selected ? 'action.selected' : 'background.paper',
+        borderColor: selected ? 'success.main' : 'divider',
+        bgcolor: selected ? alpha('#245B4E', 0.08) : 'background.paper',
+        borderRadius: { xs: '24px', md: '999px' },
         transition: (theme) =>
           theme.transitions.create(['border-color', 'background-color', 'box-shadow']),
         '&:hover': {
-          borderColor: selected ? 'primary.main' : 'text.secondary',
-          bgcolor: selected ? 'action.selected' : 'action.hover'
+          borderColor: selected ? 'success.main' : 'rgba(17, 17, 17, 0.28)',
+          bgcolor: selected ? alpha('#245B4E', 0.1) : 'rgba(17, 17, 17, 0.03)'
         },
         '&:focus-within': {
           outline: '2px solid',
-          outlineColor: 'primary.main',
+          outlineColor: 'success.main',
           outlineOffset: 2
         },
         '&:has(.Mui-disabled)': {
@@ -54,6 +56,7 @@ export default function RadioOptionCard({
         <Radio
           checked={selected}
           value={option.value}
+          color="success"
           inputProps={{
             'aria-labelledby': labelId
           }}
@@ -65,7 +68,7 @@ export default function RadioOptionCard({
 
         <Typography
           id={labelId}
-          variant="subtitle2"
+          variant="subtitle1"
           sx={{
             fontWeight: selected ? 700 : 600,
             lineHeight: 1.25,

@@ -71,7 +71,7 @@ describe('ResultPage', () => {
     });
 
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: /mui x premium/i })
     ).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('ResultPage', () => {
     });
 
     expectDocumentOrder([
-      screen.getByRole('heading', { name: /recommendation report/i }),
+      screen.getByRole('heading', { name: /your recommendation/i }),
       screen.getByRole('heading', { level: 2, name: /mui x premium/i }),
       screen.getByRole('heading', { name: /key factors behind this recommendation/i }),
       screen.getByRole('heading', { name: /path comparison/i })

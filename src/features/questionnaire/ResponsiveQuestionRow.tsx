@@ -19,7 +19,7 @@ export default function ResponsiveQuestionRow({
       component="section"
       aria-labelledby={`${id}-question`}
       sx={{
-        py: { xs: 3, md: 3.5 },
+        py: { xs: 3, md: 4 },
         borderTop: 1,
         borderColor: 'divider',
         '&:first-of-type': {
@@ -28,16 +28,17 @@ export default function ResponsiveQuestionRow({
         }
       }}
     >
-      <Grid container spacing={{ xs: 2, md: 4 }} alignItems="flex-start">
+      <Grid container spacing={{ xs: 2, md: 5 }} alignItems="flex-start">
         <Grid item xs={12} md={4}>
           <Stack spacing={1}>
             <Typography
               id={`${id}-question`}
-              variant="h6"
+              variant="h5"
               component="h3"
               sx={{
-                fontWeight: 700,
-                lineHeight: 1.25
+                fontWeight: 750,
+                lineHeight: 1.2,
+                maxWidth: 420
               }}
             >
               {label}

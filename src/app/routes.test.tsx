@@ -65,7 +65,7 @@ describe('app routes', () => {
     );
     renderRoute('/result');
 
-    expect(screen.getByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
   });
 
   it('renders the calibration route', () => {

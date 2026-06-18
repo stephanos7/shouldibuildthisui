@@ -241,7 +241,7 @@ describe('QuestionnairePage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
   });
 
   it('keeps clear saved answers secondary to the main actions on the final step', async () => {
@@ -293,7 +293,7 @@ describe('QuestionnairePage', () => {
     await fillQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
 
     const storedDraft = loadQuestionnaireDraft();
     const storedResult = loadDecisionResult();
@@ -389,7 +389,7 @@ describe('QuestionnairePage', () => {
     await fillNonGateQuestionnaire();
     fireEvent.click(screen.getByRole('button', { name: /get recommendation/i }));
 
-    expect(await screen.findByRole('heading', { name: /recommendation report/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /your recommendation/i })).toBeInTheDocument();
 
     const storedResult = loadDecisionResult();
 
