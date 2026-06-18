@@ -69,30 +69,31 @@ export default function RecommendationHero({
           </Stack>
 
           <Stack spacing={1.25} sx={{ minWidth: 0, maxWidth: { lg: 520 } }}>
-                      <Stack spacing={1.25} sx={{ minWidth: 0 }}>
-            <Stack
-              direction="row"
-              spacing={1}
-              useFlexGap
-              flexWrap="wrap"
-              alignItems="center"
-            >
-            <Typography variant="overline" color="text.secondary">
-              Executive summary
-            </Typography>
-            </Stack>
-            <Typography variant="body1">
-              {formatUserFacingText(result.explanation.summary)}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {getLeadSummary(result)}
-            </Typography>
-            {runnerUpPath ? (
-              <Typography variant="body2" color="text.secondary">
-                Runner-up: {runnerUp?.label ?? formatPathLabel(runnerUpPath)}.{" "}
-                {getConfidenceSupportingCopy(result.confidence)}
+            <Stack spacing={1.25} sx={{ minWidth: 0 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                flexWrap="wrap"
+                alignItems="center"
+              >
+                <Typography variant="overline" color="text.secondary">
+                  Executive summary
+                </Typography>
+              </Stack>
+              <Typography variant="body1">
+                {formatUserFacingText(result.explanation.summary)}
               </Typography>
-            ) : null}
+              <Typography variant="body2" color="text.secondary">
+                {getLeadSummary(result)}
+              </Typography>
+              {runnerUpPath ? (
+                <Typography variant="body2" color="text.secondary">
+                  Runner-up: {runnerUp?.label ?? formatPathLabel(runnerUpPath)}.{" "}
+                  {getConfidenceSupportingCopy(result.confidence)}
+                </Typography>
+              ) : null}
+            </Stack>
           </Stack>
         </Stack>
       </Stack>
